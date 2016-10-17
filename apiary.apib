@@ -1,0 +1,3941 @@
+FORMAT: 1A
+
+# Mail Platform API v0.1
+Mail Platform API.
+
+# Group Login
+To login into the Mail Platform API, use following calls.
+
+1. `GET` the authentication tokens JSON from the login resource with your credentials.
+1. Prepare your API call with `Authorization` header. The value field should be `MP session_token:timestamp:signnature`.
+1. Fire the calls
+
+Remember that authentication tokens has _limited validity_. Once your received unauthorized response, you need to `GET` new authentication tokens.
+
+# GET /login{?user,password}
+
++ Parameters
+
+    + user (required, string, `test`) ... user name of a account
+    
+    + password (required, string, `testpw`) ... password of the account
+    
++ Response 200 (application/json)
+
+        {"user_id": "ccf773c1-be31-4570-8773-72e10a006bca",
+            "session_token": "f90dc4aa-523a-44d3-9b5f-7b9b81baf1b4",
+            "timestamp": "1209600000",
+            "signature": "812721a73f54e58be6472d8ecbb3fec9946ac312"}
+
+# Group Domain
+Domain service
+
+# GET /domain/list
+List domain IDs.
+
++ Response 200 (application/json)
+
+        { "id": [
+            "85985175388815360",
+            "85985318578159616", 
+            "85985318528159112"
+        ] }
+
+# PUT /domain
+Create new domain.
+
++ Request (application/json)
+
+        {
+            "name": "example2.com",
+            "company": "example2",
+            "contact": "John Doe",
+            "phone": "12345678",
+            "email": "john@example.com",
+            "ztionDate": 1461832570000,
+            "language": "en",
+            "cookieName": "example.com",
+            "hostName": ["h1","h2"],
+            "administrator": "4194308",
+            "userLimit": 10000,
+            "aliasLimit": 10000,
+            "quotaLimit": 1000,
+            "logoUrl": "http://example.com/logo",
+            "policyPriority": "SDGU"
+        }
+
++ Response 200 (application/json)
+
+        { "id": "85985175388815360" }
+
+# Domain [/domain/{domain_id}]
+
++ Parameters
+
+    + domain_id (required, flakeId, `85985318578159616`) ... Id of domain
+    
+## Get domain [GET]
+Return the specified domain information.
+
++ Response 200 (application/json)
+
+        {
+            "id": "85985318578159616",
+            "name": "example.com",
+            "company": "example",
+            "contact": "John Doe",
+            "phone": "12345678",
+            "email": "john@example.com",
+            "expirationDate": 1461832570000,
+            "language": "en",
+            "cookieName": "example.com",
+            "hostName": ["h1","h2"],
+            "administrator": "4194308",
+            "userLimit": 10000,
+            "aliasLimit": 10000,
+            "quotaLimit": 1000,
+            "logoUrl": "http://example.com/logo",
+            "policyPriority": "SDGU"
+        }
+
+## Update domain [POST]
+Update domain by providing complete or partial domain information
+notice: id is unchangeable and hostname should be manipulated through host in domain apis.
+
++ Request (application/json)
+
+        {
+            "company": "example2",
+            "contact": "Bill",
+            "email": "bill@example.com",
+            "hostName": ["h1","h2"]
+        }
+    
++ Response 200 (application/ json)
+
+        {
+            "success": true
+        }
+
+## Delete domain [DELETE]
+Delete domain and all groups within it.
+
++ Request (application/json)
+
+        {
+            "id": "85985318578159616"
+        }
+    
++ Response 200 (application/ json)
+
+        {
+            "success": true
+        }
+
+# Group Host
+Host service
+
+# GET /host/list
+List host name.
+
++ Response 200 (application/json)
+
+        { "host": [
+            "h1",
+            "h2", 
+            "h3"
+        ] }
+
+# PUT /host
+Create new host
+
++ Request (application/json)
+
+        {
+            "name": "h1",
+            "displayName": "host1",
+            "domain": ["85985318578159616"],
+            "address": "1.1.1.1",
+            "port": 25
+        }
+
++ Response 200 (application/json)
+
+        { "success": true }
+
+# Host [/host/{host_name}]
+
++ Parameters
+
+    + host_name (required, string, `h1`) ... name of host
+    
+## Get host [GET]
+Return the specified host information.
+
++ Response 200 (application/json)
+
+        {
+            "name": "h1",
+            "displayName": "host1",
+            "domain": ["85985318578159616"],
+            "address": "1.1.1.1",
+            "port": 25
+        }
+
+## Update host [POST]
+Update host by providing complete or partial host information
+notice: name is unchangeable.
+
++ Request (application/json)
+
+        {
+            "displayName": "new host",
+            "domain": ["85985318578159616"],
+            "address": "1.1.1.2",
+            "port": 25
+        }
+    
++ Response 200 (application/ json)
+
+        {
+            "success": true
+        }
+
+## Delete host [DELETE]
+Delete host.
+
++ Request (application/json)
+
+        {
+            "host": "h1"
+        }
+    
++ Response 200 (application/ json)
+
+        {
+            "success": true
+        }
+
+# Emails [/host/{host_name}/email]
+
+## Emails stored in host [GET]
+
++ Response 200 (application/ json)
+
+        {
+            "emails": ["e1@example.com", "e2@example.com"]
+        }
+
+
+## Assign email to be stored in host [PUT]
+
++ Request (application/json)
+
+        {
+            "email": "e3@example.com"
+        }
+    
++ Response 200 (application/ json)
+
+        {
+            "success": true
+        }
+
+## Unassign email from host [DELETE]
+
++ Request (application/json)
+
+        {
+            "email": "e3@example.com"
+        }
+    
++ Response 200 (application/ json)
+
+        {
+            "success": true
+        }
+
+# Group Key
+The following is a section of resources related to key store.
+
+
+# POST /key
+Create new key store
+
++ Request (application/json)
+
+        {
+            "domain": "85985318578159616"
+        }
+
++ Response 200 (application/json)
+
+        {
+            "success": true
+        }
+
+# Key store related resources [/key/{domain_id}]
+
++ Parameters
+
+    + domain_id (required, flakeId, `85985318578159616`) ... Id of domain
+
+## List key entries [GET]
+Return key entries in key store.
+
++ Response 200 (application/json)
+
+        [{
+            "alias": "john",
+            "enabled": true,
+            "email": "john@mp.sn.com",
+            "goodAfter": 1473143374,
+            "goodBefore": 1788652800,
+            "algorithm": "SHA1withECDSA",
+            "length": 256,
+            "withPrivateKey": true,
+            "comment": ""
+        }]
+
+## Import key and certificate [PUT]
+Import key and certificate
+
++ Request (application/json)
+
+        {
+            "alias": "rcpt",
+            "pemKey": "-----BEGIN EC PRIVATE KEY-----\nProc-Type: 4,ENCRYPTED\nDEK-Info: DES-EDE3-CBC,EF49C765337CC2C0\n\nUSIqzbGGK8zB+8T81O5D5yWI5JJ6mp441uFuR9VLwyCD8DE0sVnHAb5PV5s4ldk2\n0trRmkryY9OhryHq+Hea+/ke2VQDtU2b1UU+Wb+oU6O8GkO48oXCZYPQWxK6u6Mq\nGej23w+v9lgx4GkllNHh82GVOLWTsTgLaMPkxQGClNw=\n-----END EC PRIVATE KEY-----",
+            "pemCert": "-----BEGIN CERTIFICATE-----\nMIICPDCCAeSgAwIBAgIJAI20VM5bk/pMMAkGByqGSM49BAEwfDELMAkGA1UEBhMC\nVFcxDzANBgNVBAgMBlRhaXdhbjEPMA0GA1UEBwwGVGFpcGVpMQswCQYDVQQKDAJz\nbjELMAkGA1UECwwCbXAxEjAQBgNVBAMMCW1wLnNuLmNvbTEdMBsGCSqGSIb3DQEJ\nARYOcmNwdEBtcC5zbi5jb20wHhcNMTYwNzIwMDMzNTA1WhcNMTcwNzIwMDMzNTA1\nWjB8MQswCQYDVQQGEwJUVzEPMA0GA1UECAwGVGFpd2FuMQ8wDQYDVQQHDAZUYWlw\nZWkxCzAJBgNVBAoMAnNuMQswCQYDVQQLDAJtcDESMBAGA1UEAwwJbXAuc24uY29t\nMR0wGwYJKoZIhvcNAQkBFg5yY3B0QG1wLnNuLmNvbTBZMBMGByqGSM49AgEGCCqG\nSM49AwEHA0IABPmHv7iCv7vUMY7vPaBPbgB7CNxeVX4+5aNEiu4AQm1jlP/wd6X8\nXZ7P44/htWClG7fhVwPESv95wSc4rAHgWVajUDBOMB0GA1UdDgQWBBT/g4vEazI/\nuCuEWgmTTaxWP1pS9TAfBgNVHSMEGDAWgBT/g4vEazI/uCuEWgmTTaxWP1pS9TAM\nBgNVHRMEBTADAQH/MAkGByqGSM49BAEDRwAwRAIgFnFAE0XUMKMmCO4lmCLhZIOt\n6MoUOMiTKbArz8zOCjsCICRFPYFdAFKJOewyg0eoSqtgVaqBzjh5D082Yk/3zMaG\n-----END CERTIFICATE-----",
+            "keyPass": "123",
+            "email": "rcpt@mp.sn.com"
+        }
+
++ Response 200 (application/json)
+
+        {
+            "success": true
+        }
+
+## Enable / disable key [POST]
+Enable or disable a key
+
++ Request (application/json)
+
+        {
+            "alias": ["john","rcpt"],
+            "enable": true
+        }
+
++ Response 200 (application/json)
+
+        {
+            "success": true
+        }
+
+## Remove key [DELETE]
+Remove key and certificate
+
++ Request (application/json)
+
+        {
+            "alias": ["john","rcpt"]
+        }
+
++ Response 200 (application/json)
+
+        {
+            "success": true
+        }
+
+# POST /key/{domain_id}/create
+Create new key with self-signed cerificate
+
++ Request (application/json)
+
+        {
+            "alias": "rcpt",
+            "email": "rcpt@mp.sn.com",
+            "commonName": "mp.sn.com",
+            "organizationalUnit": "mp",
+            "organization": "sn",
+            "city": "Taipei",
+            "state": "Taiwan",
+            "country": "Taiwan",
+            "validity": 3,
+            "keyPass": "123",
+            "comment": "",
+            "issuerKeyAlias": "Issuer", // optional
+            "issuerKeyPass": "IssuerPass", // optional
+            "requestCSR": false
+        }
+    
++ Response 200 (application/json)
+
+        {
+            "success": true
+        }
+
++ Response 200 (application/json)
+
+        {
+            "csr": "-----BEGIN CERTIFICATE REQUEST-----\nMIIByjCCATMCAQAwgYkxCzAJBgNVBAYTAlVTMRMwEQYDVQQIEwpDYWxpZm9ybmlh\nMRYwFAYDVQQHEw1Nb3VudGFpbiBWaWV3MRMwEQYDVQQKEwpHb29nbGUgSW5jMR8w\nHQYDVQQLExZJbmZvcm1hdGlvbiBUZWNobm9sb2d5MRcwFQYDVQQDEw53d3cuZ29v\nZ2xlLmNvbTCBnzANBgkqhkiG9w0BAQEFAAOBjQAwgYkCgYEApZtYJCHJ4VpVXHfV\nIlstQTlO4qC03hjX+ZkPyvdYd1Q4+qbAeTwXmCUKYHThVRd5aXSqlPzyIBwieMZr\nWFlRQddZ1IzXAlVRDWwAo60KecqeAXnnUK+5fXoTI/UgWshre8tJ+x/TMHaQKR/J\ncIWPhqaQhsJuzZbvAdGA80BLxdMCAwEAAaAAMA0GCSqGSIb3DQEBBQUAA4GBAIhl\n4PvFq+e7ipARgI5ZM+GZx6mpCz44DTo0JkwfRDf+BtrsaC0q68eTf2XhYOsq4fkH\nQ0uA0aVog3f5iJxCa3Hp5gxbJQ6zV6kJ0TEsuaaOhEko9sdpCoPOnRBm2i/XRD2D\n6iNh8f8z0ShGsFqjDgFHyF3o+lUyj+UC6H1QW7bn\n-----END CERTIFICATE REQUEST-----"
+        }
+
+# PUT /key/{domain_id}/certificate
+Import certificate for signature verfication usage, will replace certificate if alias already exist
+
++ Request (application/json)
+
+        {
+            "alias": "rcpt",
+            "pemCert": "-----BEGIN CERTIFICATE-----\nMIICPDCCAeSgAwIBAgIJAI20VM5bk/pMMAkGByqGSM49BAEwfDELMAkGA1UEBhMC\nVFcxDzANBgNVBAgMBlRhaXdhbjEPMA0GA1UEBwwGVGFpcGVpMQswCQYDVQQKDAJz\nbjELMAkGA1UECwwCbXAxEjAQBgNVBAMMCW1wLnNuLmNvbTEdMBsGCSqGSIb3DQEJ\nARYOcmNwdEBtcC5zbi5jb20wHhcNMTYwNzIwMDMzNTA1WhcNMTcwNzIwMDMzNTA1\nWjB8MQswCQYDVQQGEwJUVzEPMA0GA1UECAwGVGFpd2FuMQ8wDQYDVQQHDAZUYWlw\nZWkxCzAJBgNVBAoMAnNuMQswCQYDVQQLDAJtcDESMBAGA1UEAwwJbXAuc24uY29t\nMR0wGwYJKoZIhvcNAQkBFg5yY3B0QG1wLnNuLmNvbTBZMBMGByqGSM49AgEGCCqG\nSM49AwEHA0IABPmHv7iCv7vUMY7vPaBPbgB7CNxeVX4+5aNEiu4AQm1jlP/wd6X8\nXZ7P44/htWClG7fhVwPESv95wSc4rAHgWVajUDBOMB0GA1UdDgQWBBT/g4vEazI/\nuCuEWgmTTaxWP1pS9TAfBgNVHSMEGDAWgBT/g4vEazI/uCuEWgmTTaxWP1pS9TAM\nBgNVHRMEBTADAQH/MAkGByqGSM49BAEDRwAwRAIgFnFAE0XUMKMmCO4lmCLhZIOt\n6MoUOMiTKbArz8zOCjsCICRFPYFdAFKJOewyg0eoSqtgVaqBzjh5D082Yk/3zMaG\n-----END CERTIFICATE-----",
+            "email": "rcpt@mp.sn.com"
+        }
+
++ Response 200 (application/json)
+
+        {
+            "success": true
+        }
+
+# Specific key related resources [/key/{domain_id}/{alias}]
+
++ Parameters
+
+    + domain_id (required, flakeId, `85985318578159616`) ... Id of domain
+    + alias (required, string, `user1`) ... alias of key
+
+## Export certificate [GET]
+Export certificate of specified key to pem string format
+
++ Request (application/json)
+
+        {
+            "alias": "rcpt"
+        }
+
++ Response 200 (application/json)
+
+        {
+            "pemCert": "-----BEGIN CERTIFICATE-----\nMIICPDCCAeSgAwIBAgIJAI20VM5bk/pMMAkGByqGSM49BAEwfDELMAkGA1UEBhMC\nVFcxDzANBgNVBAgMBlRhaXdhbjEPMA0GA1UEBwwGVGFpcGVpMQswCQYDVQQKDAJz\nbjELMAkGA1UECwwCbXAxEjAQBgNVBAMMCW1wLnNuLmNvbTEdMBsGCSqGSIb3DQEJ\nARYOcmNwdEBtcC5zbi5jb20wHhcNMTYwNzIwMDMzNTA1WhcNMTcwNzIwMDMzNTA1\nWjB8MQswCQYDVQQGEwJUVzEPMA0GA1UECAwGVGFpd2FuMQ8wDQYDVQQHDAZUYWlw\nZWkxCzAJBgNVBAoMAnNuMQswCQYDVQQLDAJtcDESMBAGA1UEAwwJbXAuc24uY29t\nMR0wGwYJKoZIhvcNAQkBFg5yY3B0QG1wLnNuLmNvbTBZMBMGByqGSM49AgEGCCqG\nSM49AwEHA0IABPmHv7iCv7vUMY7vPaBPbgB7CNxeVX4+5aNEiu4AQm1jlP/wd6X8\nXZ7P44/htWClG7fhVwPESv95wSc4rAHgWVajUDBOMB0GA1UdDgQWBBT/g4vEazI/\nuCuEWgmTTaxWP1pS9TAfBgNVHSMEGDAWgBT/g4vEazI/uCuEWgmTTaxWP1pS9TAM\nBgNVHRMEBTADAQH/MAkGByqGSM49BAEDRwAwRAIgFnFAE0XUMKMmCO4lmCLhZIOt\n6MoUOMiTKbArz8zOCjsCICRFPYFdAFKJOewyg0eoSqtgVaqBzjh5D082Yk/3zMaG\n-----END CERTIFICATE-----",
+        }
+
+## Import certificate [PUT]
+Import certificate for specific key, please be aware of that current certificate will be replaced.
+
++ Request (application/json)
+
+        {
+            "keyPass": "123",
+            "pemCert": "-----BEGIN CERTIFICATE-----\nMIICPDCCAeSgAwIBAgIJAI20VM5bk/pMMAkGByqGSM49BAEwfDELMAkGA1UEBhMC\nVFcxDzANBgNVBAgMBlRhaXdhbjEPMA0GA1UEBwwGVGFpcGVpMQswCQYDVQQKDAJz\nbjELMAkGA1UECwwCbXAxEjAQBgNVBAMMCW1wLnNuLmNvbTEdMBsGCSqGSIb3DQEJ\nARYOcmNwdEBtcC5zbi5jb20wHhcNMTYwNzIwMDMzNTA1WhcNMTcwNzIwMDMzNTA1\nWjB8MQswCQYDVQQGEwJUVzEPMA0GA1UECAwGVGFpd2FuMQ8wDQYDVQQHDAZUYWlw\nZWkxCzAJBgNVBAoMAnNuMQswCQYDVQQLDAJtcDESMBAGA1UEAwwJbXAuc24uY29t\nMR0wGwYJKoZIhvcNAQkBFg5yY3B0QG1wLnNuLmNvbTBZMBMGByqGSM49AgEGCCqG\nSM49AwEHA0IABPmHv7iCv7vUMY7vPaBPbgB7CNxeVX4+5aNEiu4AQm1jlP/wd6X8\nXZ7P44/htWClG7fhVwPESv95wSc4rAHgWVajUDBOMB0GA1UdDgQWBBT/g4vEazI/\nuCuEWgmTTaxWP1pS9TAfBgNVHSMEGDAWgBT/g4vEazI/uCuEWgmTTaxWP1pS9TAM\nBgNVHRMEBTADAQH/MAkGByqGSM49BAEDRwAwRAIgFnFAE0XUMKMmCO4lmCLhZIOt\n6MoUOMiTKbArz8zOCjsCICRFPYFdAFKJOewyg0eoSqtgVaqBzjh5D082Yk/3zMaG\n-----END CERTIFICATE-----",
+            "email": "rcpt@mp.sn.com"
+        }
+
++ Response 200 (application/json)
+
+        {
+            "success": true
+        }
+
+
+## Export key [POST]
+Export specific key to pem string format
+
++ Request (application/json)
+
+        {
+            "keyPass": "123"
+        }
+
++ Response 200 (application/json)
+
+        {
+            "pemKey": "-----BEGIN EC PRIVATE KEY-----\nProc-Type: 4,ENCRYPTED\nDEK-Info: DES-EDE3-CBC,EF49C765337CC2C0\n\nUSIqzbGGK8zB+8T81O5D5yWI5JJ6mp441uFuR9VLwyCD8DE0sVnHAb5PV5s4ldk2\n0trRmkryY9OhryHq+Hea+/ke2VQDtU2b1UU+Wb+oU6O8GkO48oXCZYPQWxK6u6Mq\nGej23w+v9lgx4GkllNHh82GVOLWTsTgLaMPkxQGClNw=\n-----END EC PRIVATE KEY-----",
+        }
+
+        
+# Group Account
+The following is a section of resources related to the account.
+
+# GET /account/list
+List account IDs.
+
++ Response 200 (application/json)
+
+        { "id": [
+            "ccf773c1-be31-4570-8773-72e10a006bca",
+            "b436930c-ab88-4b21-93df-6a4919355309", 
+            "6cb94825-dfba-4f09-bcce-a5a0ff56a351"
+        ] }
+
+# GET /account/list/{domain_id}
+List account IDs within specified domain.
+
++ Response 200 (application/json)
+
+        { "id": [
+            "ccf773c1-be31-4570-8773-72e10a006bca",
+            "b436930c-ab88-4b21-93df-6a4919355309", 
+            "6cb94825-dfba-4f09-bcce-a5a0ff56a351"
+        ] }
+
+# PUT /account
+Create new account
+
++ Request (application/json)
+
+        {
+            "name": "account name",
+            "displayName": "display name",
+            "password": "password",
+            "mail_address": "email@example.com",
+            "mail_group": "b436930c-ab88-4b21-93df-6a4919355309",
+            "synchronize_type": "manual"
+        }
+    
++ Response 200 (application/json)
+
+        {
+            "id": "ccf773c1-be31-4570-8773-72e10a006bca"
+        }
+        
+# Account [/account/{account_id}]
+
++ Parameters
+
+    + account_id (required, UUID, `ccf773c1-be31-4570-8773-72e10a006bca`) ... Id of a account
+    
+## Get account [GET]
+Return the specified account.
+
++ Response 200 (application/json)
+
+        {
+            "id": "ccf773c1-be31-4570-8773-72e10a006bca",
+            "name": "account name",
+            "displayName": "display name",
+            "mail_address": ["email@example.com", "email2@example.com"],
+            "mail_group": ["b436930c-ab88-4b21-93df-6a4919355309", 
+                "b436930c-ab88-4b21-93df-6a4919355309"],
+            "password": "password",
+            "synchronize_type": "manual"
+        }
+
+## Remove account [DELETE]
+Remove an account
+
++ Response 200 (application/ json)
+
+        {
+            "id": "ccf773c1-be31-4570-8773-72e10a006bca"
+        }
+
+## Update account [POST]
+Update an account by providing complete or partial account information
+
++ Request (application/json)
+
+        {
+            "displayName": "display name",
+            "mail_address": ["email@example.com", "email2@example.com"],
+            "mail_group": ["b436930c-ab88-4b21-93df-6a4919355309", 
+                "b436930c-ab88-4b21-93df-6a4919355309"]
+        }
+    
++ Response 200 (application/ json)
+
+        {
+            "id": "ccf773c1-be31-4570-8773-72e10a006bca",
+            "displayName": "display name",
+            "mail_address": ["email@example.com", "email2@example.com"],
+            "mail_group": ["b436930c-ab88-4b21-93df-6a4919355309", 
+                "b436930c-ab88-4b21-93df-6a4919355309"]
+        }
+
+        
+# GET /account/email/{email}
+Return the account profile having speicified *email*.
+
++ Parameters
+
+    + email (required, email, `email@example.com`) ... any email of a account
+    
++ Response 200 (application/json)
+
+        {
+            "id": "ccf773c1-be31-4570-8773-72e10a006bca",
+            "name": "account name",
+            "mail_address": ["email@example.com", "email2@example.com"],
+            "mail_group": ["b436930c-ab88-4b21-93df-6a4919355309", 
+                "b436930c-ab88-4b21-93df-6a4919355309"],
+            "password": "password",
+            "synchronize_type": "manual"
+        }
+        
+# GET /account/name/{name}
+Return the account profile having speicified *name*.
+
++ Parameters
+
+    * name (required, string, `account name`) ... name of a account
+    
++ Response 200 (application/json)
+
+        {
+            "id": "ccf773c1-be31-4570-8773-72e10a006bca",
+            "name": "account name",
+            "displayName": "display name",
+            "mail_address": ["email@example.com", "email2@example.com"],
+            "mail_group": ["b436930c-ab88-4b21-93df-6a4919355309", 
+                "b436930c-ab88-4b21-93df-6a4919355309"],
+            "password": "password",
+            "synchronize_type": "manual"
+        }
+
+#GET /account/name/exists?username={name}
+Return whether specified *name* has been used
+
++ Parameters
+
+    + username (required, string, `username`) ... Username to be checked
+    
++ Response 200 (application/json)
+
+        {
+            "exists": true
+        }    
+
+# Account-groupExpansion associations [/account/{account_id}/groupExpansion]
+
++ Parameters
+
+    + account_id (required, UUID, `ccf773c1-be31-4570-8773-72e10a006bca`) ... Id of a account
+    
+## Return account's group expansions [GET]
+
++ Response 200 (application/json)
+
+        { "includingSubGroups": [
+                "ccf773c1-be31-4570-8773-72e10a006bca",
+                "b436930c-ab88-4b21-93df-6a4919355309"
+            ],"excludingSubGroups": [
+                "6cb94825-dfba-4f09-bcce-a5a0ff56a351"
+            ]
+        }
+
+## Update account's group expansions [POST]
+
++ Request (application/json)
+
+        [{
+            "action": "add",
+            "groupId": "ccf773c1-be31-4570-8773-72e10a006bca",
+            "groupType": "include"
+        },{
+            "action": "add",
+            "groupId": "6cb94825-dfba-4f09-bcce-a5a0ff56a351",
+            "groupType": "exclude"
+        }]
+
++ Response 200 (application/json)
+
+        { "account": "success"}
+
+# GET /account/{account_id}/role
+Return the roles of the specified account.
+
++ Parameters
+
+    + account_id (required, UUID, `ccf773c1-be31-4570-8773-72e10a006bca`) ... Id of a account
+    
++ Response 200 (application/json)
+
+        { "id": [
+            "b436930c-ab88-4b21-93df-6a4919355309", 
+            "6cb94825-dfba-4f09-bcce-a5a0ff56a351"
+        ] }
+
+
+# Account retriever rule associations [/account/retriever]
+
+## Return retriever rule [GET]
+
++ Response 200 (application/json)
+
+        [{ "name": "testRule",
+          "userId": "ccf773c1-be31-4570-8773-72e10a006bca",
+          "rootGroup": "b436930c-ab88-4b21-93df-6a4919355309",
+          "defaultRole": ["b436930c-ab88-4b21-93df-6a4919355309"],
+          "server": "192.168.214.1",
+          "port": 389,
+          "useSSL": false,
+          "account": "qcadm",
+          "password": "arborabc",
+          "baseDn": "OU=eng_test01,DC=dc,DC=qc,DC=softnext,DC=com,DC=tw",
+          "filter": "(objectClass=*)",
+          "autoSync": true,
+          "schedule": {"weekDay":[1,2,3,4,5,6,7],"time":["2:10"],"timeZone":"Etc/UTC"},
+          "threshold":0,
+          "notification":{"email":["abc@example.com"],"details":true,"ignoreEmpty":false},
+          "extractMember": true,
+          "mailAttrId": "mail",
+          "subMailAttrId": "proxyaddresses",
+          "nameAttrId": "cn",
+          "displayAttrId": "description",
+          "groupRule": {
+            "ruleType": "ByOU",
+            "param": "",
+            "prefix": ""
+          }
+        }]
+
+## Update retriever rule [POST]
+
++ Request (application/json)
+
+        {
+            "name": "testRule",
+            "rule": { "name": "testRule",
+              "userId": "ccf773c1-be31-4570-8773-72e10a006bca",
+              "rootGroup": "b436930c-ab88-4b21-93df-6a4919355309",
+              "defaultRole": ["b436930c-ab88-4b21-93df-6a4919355309"],
+              "server": "192.168.214.1",
+              "port": 389,
+              "useSSL": false,
+              "account": "qcadm",
+              "password": "arborabc",
+              "baseDn": "OU=eng_test01,DC=dc,DC=qc,DC=softnext,DC=com,DC=tw",
+              "filter": "(objectClass=*)",
+              "autoSync": true,
+              "schedule": {"weekDay":[1,2,3,4,5,6,7],"time":["2:10"],"timeZone":"Etc/UTC"},
+              "threshold":0,
+              "notification":{"email":["abc@example.com"],"details":true,"ignoreEmpty":false},
+              "extractMember": true,
+              "mailAttrId": "mail",
+              "subMailAttrId": "proxyaddresses",
+              "nameAttrId": "cn",
+              "displayAttrId": "description",
+              "groupRule": {
+                "ruleType": "ByOU",
+                "param": "",
+                "prefix": ""
+              }
+          }
+        }
+
++ Response 200 (application/json)
+
+        { "name": "testRule",
+          "userId": "ccf773c1-be31-4570-8773-72e10a006bca",
+          "rootGroup": "b436930c-ab88-4b21-93df-6a4919355309",
+          "defaultRole": ["b436930c-ab88-4b21-93df-6a4919355309"],
+          "server": "192.168.214.1",
+          "port": 389,
+          "useSSL": false,
+          "account": "qcadm",
+          "password": "arborabc",
+          "baseDn": "OU=eng_test01,DC=dc,DC=qc,DC=softnext,DC=com,DC=tw",
+          "filter": "(objectClass=*)",
+          "autoSync": true,
+          "schedule": {"weekDay":[1,2,3,4,5,6,7],"time":["2:10"],"timeZone":"Etc/UTC"},
+          "threshold":0,
+          "notification":{"email":["abc@example.com"],"details":true,"ignoreEmpty":false},
+          "extractMember": true,
+          "mailAttrId": "mail",
+          "subMailAttrId": "proxyaddresses",
+          "nameAttrId": "cn",
+          "displayAttrId": "description",
+          "groupRule": {
+            "ruleType": "ByOU",
+            "param": "",
+            "prefix": ""
+          }
+        }
+
++ Response 200 (application/json)
+
+        { "error": "rule not found"}
+
+## Delete retriever rule [DELETE]
+
++ Request (application/json)
+
+        {
+            "name": "testRule"
+        }
+
++ Response 200 (application/json)
+
+        { "name": "testRule",
+          "userId": "ccf773c1-be31-4570-8773-72e10a006bca",
+          "rootGroup": "b436930c-ab88-4b21-93df-6a4919355309",
+          "defaultRole": ["b436930c-ab88-4b21-93df-6a4919355309"],
+          "server": "192.168.214.1",
+          "port": 389,
+          "useSSL": false,
+          "account": "qcadm",
+          "password": "arborabc",
+          "baseDn": "OU=eng_test01,DC=dc,DC=qc,DC=softnext,DC=com,DC=tw",
+          "filter": "(objectClass=*)",
+          "autoSync": true,
+          "schedule": {"weekDay":[1,2,3,4,5,6,7],"time":["2:10"],"timeZone":"Etc/UTC"},
+          "threshold":0,
+          "notification":{"email":["abc@example.com"],"details":true,"ignoreEmpty":false},
+          "extractMember": true,
+          "mailAttrId": "mail",
+          "subMailAttrId": "proxyaddresses",
+          "nameAttrId": "cn",
+          "displayAttrId": "description",
+          "groupRule": {
+            "ruleType": "ByOU",
+            "param": "",
+            "prefix": ""
+          }
+        }
+
++ Response 200 (application/json)
+
+        { "error": "rule not found"}
+
+# POST /account/retriever/bindTest
+Test binding with remote server
+
++ Request (application/json)
+
+        {
+            "server": "test.server",
+            "port": 389,
+            "useSSL": false,
+            "name": "user",
+            "password": "pass"
+        }
+    
++ Response 200 (application/json)
+
+        { "ruleName": "bind test" }
+
++ Response 200 (application/json)
+
+        { "ruleName": "bind test",
+          "failType": "ConnectFailed",
+          "message": ""
+        }
+
++ Response 200 (application/json)
+
+        { "ruleName": "bind test",
+          "failType": "BindFailed",
+          "message": ""
+        }
+
+# POST /account/retriever/retrieve/preview
+Preview the result of retrieve group and users using all rules with autoSync equals true
+
+    
++ Response 200 (application/json)
+
+        { "status": [{"ruleName": "test", "groupAdded":1,"groupDeleted":0,"userAdded":2,"userModified":0,"userDeleted":0}],
+          "groups": {"add":["b436930c-ab88-4b21-93df-6a4919355309"],"delete":[]}, 
+          "users": {"add":["6cb94825-dfba-4f09-bcce-a5a0ff56a351"],"modify":[],"delete":[]}
+        }
+
+# POST /account/retriever/retrieve
+Retrieve group and users using all rules with autoSync equals true
+
+    
++ Response 200 (application/json)
+
+        { "status": [{"ruleName": "test", "groupAdded":1,"groupDeleted":0,"userAdded":2,"userModified":0,"userDeleted":0}],
+          "groups": {"add":["b436930c-ab88-4b21-93df-6a4919355309"],"delete":[]}, 
+          "users": {"add":["6cb94825-dfba-4f09-bcce-a5a0ff56a351"],"modify":[],"delete":[]}
+        }
+
+# POST /account/retriever/retrieveSingle/preview
+Preview the result of retrieve group and users using specified rule
+
++ Request (application/json)
+
+        { "name": "testRule" }
+    
++ Response 200 (application/json)
+
+        { "status": [{"ruleName": "test", "groupAdded":1,"groupDeleted":0,"userAdded":2,"userModified":0,"userDeleted":0}],
+          "groups": {"add":["b436930c-ab88-4b21-93df-6a4919355309"],"delete":[]}, 
+          "users": {"add":["6cb94825-dfba-4f09-bcce-a5a0ff56a351"],"modify":[],"delete":[]}
+        }
+
+# POST /account/retriever/retrieveSingle
+Retrieve group and users using specified rule
+
++ Request (application/json)
+
+        { "name": "testRule" }
+    
++ Response 200 (application/json)
+
+        { "status": [{"ruleName": "test", "groupAdded":1,"groupDeleted":0,"userAdded":2,"userModified":0,"userDeleted":0}],
+          "groups": {"add":["b436930c-ab88-4b21-93df-6a4919355309"],"delete":[]}, 
+          "users": {"add":["6cb94825-dfba-4f09-bcce-a5a0ff56a351"],"modify":[],"delete":[]}
+        }
+
+# User preferences associations [/account/{account_id}/preference/{key}]
+
+## Return user preferences [GET]
+
++ Response 200 (application/json)
+
+        {"path":"/data", "defaultName":"myarchive"}
+
+## Set user preference [POST]
+
++ Request (application/json)
+
+        {"path":"/data", "defaultName":"myarchive"}
+    
++ Response 200 (application/json)
+
+        {"suceess":true}
+
+# GET /account/{account_id}/preference
++ Response 200 (application/json)
+
+        [
+            { "key": "archiveSettings","value": {"path":"/data", "defaultName":"myarchive"}},
+            { "key": "maillogSettings","value": {"fields":["date","subject"]}}
+        ]
+
+# Default preferences associations [/account/preference/{key}]
+System default settings
+
+
+## Return default preference with given key [GET]
+
++ Response 200 (application/json)
+
+        {"path":"/data", "defaultName":"myarchive"}
+
+## Set default preference [POST]
+
++ Request (application/json)
+
+        {"path":"/data", "defaultName":"myarchive"}
+
++ Response 200 (application/json)
+
+        {"suceess":true}
+
+# GET /account/preference
+
++ Response 200 (application/json)
+
+        [
+            { "key": "archiveSettings","value": {"path":"/data", "defaultName":"myarchive"}},
+            { "key": "maillogSettings","value": {"fields":["date","subject"]}}
+        ]
+# GET /account/preference/quarantineNoticeSetting
+Return quarantine notice settings
+
++ Response 200 (application/json)
+
+        {
+            "weekDay":[1,2,3,4,5],
+            "time":["08:45","16:30"],
+            "timeZone":"Etc/UTC"
+        }
+
+# POST /account/export/csv
+Export account group information to CSV format
+
++ Request (application/json)
+
+        {"ids":["4194311", "4194313"]}
+
++ Response 200 (application/json)
+
+        {"csv": "\"gro\"\"/up\"\"-6270164c-31ee-4243-8400-f34c0811ba40/gro\"\"/up\"\"-b436930c-ab88-4b21-93df-6a4919355309\",Manual,account name,display name,email@example.com,default,Manual\r\n\"gro\"\"/up\"\"-6270164c-31ee-4243-8400-f34c0811ba40/gro\"\"/up\"\"-b436930c-ab88-4b21-93df-6a4919355309\",Manual,account name,display name,email2@example.com,default,Manual"}
+
+
+# POST /account/import/csv
+Import account group information from CSV format
+
++ Request (application/json)
+
+        {"root":"4194411", "csv":"\"gro\"\"/up\"\"-4194411/gro\"\"/up\"\"-4194412\",Manual,account1,display name,email@example.com,default,Manual\r\n\"gro\"\"/up\"\"-4194411/gro\"\"/up\"\"-4194412\",Manual,account2,display name,email2@example.com,default,Manual"}
+
++ Response 200 (application/json)
+
+        {
+            "status":[{"ruleName":"ImportCsv"}],
+            "groups":["4194412"],
+            "users":["4194311","4194313"]
+        }
+
+
+# Domain aliases associations [/account/domainAliases]
+
+## Return domain aliases [GET]
+
++ Response 200 (application/json)
+
+        [
+            {
+                "from":"example-inc.com",
+                "to":"example.com"
+            },
+            {
+                "from":"example.co.jp",
+                "to":"example.com"
+            }
+        ]
+
+## Update domain aliases [POST]
+
++ Request (application/json)
+
+        {
+            "from":"example-inc.com",
+            "to":"example.com"
+        }
+    
++ Response 200 (application/json)
+
+        {"suceess":true}
+
+## Delete domain aliases [DELETE]
+
++ Request (application/json)
+
+        {"from":"example-inc.com"}
+    
++ Response 200 (application/json)
+
+        {"suceess":true}
+
+
+# Group Group
+The following is a section of resources related to the group.
+
+# GET /group/list
+List group IDs.
+
++ Response 200 (application/json)
+
+        { "id": [
+            "ccf773c1-be31-4570-8773-72e10a006bca",
+            "b436930c-ab88-4b21-93df-6a4919355309", 
+            "6cb94825-dfba-4f09-bcce-a5a0ff56a351"
+        ] }
+
+# PUT /group
+Create new group.
+
++ Request (application/json)
+
+        {
+            "name": "group name",
+            "parent_id": "6cb94825-dfba-4f09-bcce-a5a0ff56a351",
+            "synchronize_type": "automatic"
+        }
+        
++ Response 200 (application/json)
+
+        { "id": "ccf773c1-be31-4570-8773-72e10a006bca" }
+        
+# Group [/group/{group_id}]
+
++ Parameters
+
+    + group_id (required, UUID, `ccf773c1-be31-4570-8773-72e10a006bca`) ... Id of a group
+
+# Get group [GET]
+Return the speicified group.
+
++ Response 200 (application/json)
+
+        {
+            "id": "ccf773c1-be31-4570-8773-72e10a006bca",
+            "name": "group name",
+            "parent_id": "6cb94825-dfba-4f09-bcce-a5a0ff56a351",
+            "synchronize_type": "automatic",
+            "created_by": "b436930c-ab88-4b21-93df-6a4919355309"
+        }
+
+# Move group [POST]
+Move group
+
++ Request (application/json)
+
+        { "parent_id": "6cb94825-dfba-4f09-bcce-a5a0ff56a351" }
+    
++ Response 200 (application/json)
+
+        { "parent_id": "6cb94825-dfba-4f09-bcce-a5a0ff56a351" }
+        
+# Remove group [DELETE]
+Remove the speicified group, will remove all descendant groups if specified with includingSubGroups = true.
+
++ Request (application/json)
+
+        { "includingSubGroups": false }
+
++ Response 200 (application/json)
+
+        { "id": "ccf773c1-be31-4570-8773-72e10a006bca" }
+        
+# GET /group/email/{email}
+Return the group having specified *email*.
+
++ Parameters
+
+    + email (required, email, `email@example.com`) ... any email of a group
+    
++ Response 200 (application/json)
+
+        {
+            "id": "ccf773c1-be31-4570-8773-72e10a006bca",
+            "name": "group name",
+            "parent_id": "6cb94825-dfba-4f09-bcce-a5a0ff56a351",
+            "synchronize_type": "automatic",
+            "created_by": "b436930c-ab88-4b21-93df-6a4919355309"
+        }
+        
+# GET /group/{group_id}/email
+Return the emails of specified group. 
+
++ Parameters
+
+    + group_id (required, UUID, `ccf773c1-be31-4570-8773-72e10a006bca`) ... Id of a group
+    
++ Response 200 (application/json)
+
+        { "email": ["email@example.com", "another.email@example.com"]}
+
+# POST /group/{group_id}/rename
+Rename specified group. 
+
++ Parameters
+
+    + group_id (required, UUID, `ccf773c1-be31-4570-8773-72e10a006bca`) ... Id of a group
+    
++ Request (application/json)
+
+        { "name": "newGroupName" }    
+    
++ Response 200 (application/json)
+
+        { "id": "ccf773c1-be31-4570-8773-72e10a006bca" }
+
+# Group Role
+The following is a section of resources related to the role.
+
+# GET /role/list
+List role IDs.
+
++ Response 200 (application/json)
+
+        { "id": [
+            "ccf773c1-be31-4570-8773-72e10a006bca",
+            "b436930c-ab88-4b21-93df-6a4919355309", 
+            "6cb94825-dfba-4f09-bcce-a5a0ff56a351"
+        ] }
+
+# POST /role/listPrivileges{?groups,emails}
+List all privileges applicable to targets groups and emails
+
++ Parameters
+
+    + groups (required, string, `ccf773c1-be31-4570-8773-72e10a006bca,ccf773c1-be31-4570-8773-72e10a006bca,ccf773c1-be31-4570-8773-72e10a006bca`) ... Target groups
+    
+    + emails (required, string, `*`) ... Target emails
+
++ Request (application/json)
+
+        {
+            "groups": "ccf773c1-be31-4570-8773-72e10a006bca,ccf773c1-be31-4570-8773-72e10a006bca,ccf773c1-be31-4570-8773-72e10a006bca",
+            "emails": "*"
+        }
+
++ Response 200 (application/json)
+
+        { 
+            {
+                "function": "security:role",
+                "permissions": ["listAll","get","create","update","add","delete","copy"] 
+            },
+            {
+                "function": "security:permission",
+                "permissions": ["add","delete"] 
+            },            
+            {
+                "function": "security:*",
+                "permissions": ["*"] 
+            }            
+        }
+
+# PUT /role
+Create new role.
+
++ Request (application/json)
+
+        { 
+            "name": "role name",
+            "owner": "ccf773c1-be31-4570-8773-72e10a006bca"
+        }
+        
++ Response 200 (application/json)
+
+        { "id": "b436930c-ab88-4b21-93df-6a4919355309" }
+
+# Role [/role/{role_id}]
+
++ Parameters
+
+    + role_id (required, UUID, `b436930c-ab88-4b21-93df-6a4919355309`) ... Id of a role
+
+# Get role [GET]
+Return the specified role.
+
++ Response 200 (application/json)
+
+        {
+            "id": "b436930c-ab88-4b21-93df-6a4919355309",
+            "name": "role name",
+            "owner": "ccf773c1-be31-4570-8773-72e10a006bca"
+        }
+
+# Rename role [POST]
+Rename the specitifed role.
+
++ Request (application/json)
+
+        { "name": "newRoleName" }
+
++ Response 200 (application/json)
+
+        { "id": "b436930c-ab88-4b21-93df-6a4919355309" }
+
+
+# Remove role [DELETE]
+Remove the specitifed role.
+
++ Response 200 (application/json)
+
+        { "id": "b436930c-ab88-4b21-93df-6a4919355309" }
+
+        
+# Role-permission associations [/role/{role_id}/permissions]
++ Parameters
+
+    + role_id (required, UUID, `b436930c-ab88-4b21-93df-6a4919355309`) ... Id of a role
+
+# Get permissions [GET]
+Return permissions of the specified role.
+
++ Response 200 (application/json)
+
+        [
+            {
+                "function": "search:mail",
+                "group": ["e20da833-c2b6-4bda-962d-12590c52eb87"],
+                "permission" ["message"],
+                "email": ["*"],
+                "time": [{"start": 1412115000000, "end": 1412394900000}, {"end": 1412912100000}]
+            },
+            {
+                "function": "search:mail",
+                "group": ["d6384d4a-3fca-4da2-a23a-4913e4841226*", "@"],
+                "permission" ["*"],
+                "email": ["a@b.c.d", "$"],
+                "time": ["*"]
+            }
+        ]
+
+# Add permission [POST]
+Add permission to specified role.
+
++ Request (application/json)
+
+            {
+                "function": "filter:*",
+                "group": ["d6384d4a-3fca-4da2-a23a-4913e4841226*"],
+                "permission" ["*"],
+                "email": ["*"],
+                "time": ["*"]
+            }
+        
++ Response 200 (application/json)
+
+        { "permission": "filter:*:GroupId(d6384d4a-3fca-4da2-a23a-4913e4841226)*:*:*:*" }
+
+# Remove permission [DELETE]
+Remove permission from specified role.
+
++ Request (application/json)
+
+            {
+                "function": "filter:*",
+                "group": ["d6384d4a-3fca-4da2-a23a-4913e4841226*"],
+                "permission" ["*"],
+                "email": ["*"],
+                "time": ["*"]
+            }
+        
++ Response 200 (application/json)
+
+        { "permission": "filter:*:GroupId(d6384d4a-3fca-4da2-a23a-4913e4841226)*:*:*:*" }
+
+# DELETE /role/{role_id}/allPermissions
+Remove all permissions of specified role.
+
++ Response 200 (application/json)
+
+        { "id": "b436930c-ab88-4b21-93df-6a4919355309" }
+
+# Role-account associations [/role/{role_id}/{account_id}]
+
++ Parameters
+
+    + role_id (required, UUID, `b436930c-ab88-4b21-93df-6a4919355309`) ... Id of a role
+    + account_id (required, UUID, `ccf773c1-be31-4570-8773-72e10a006bca`) ... Id of a account
+
+# Assign [POST]
+Assign specified role to an account.
+
++ Response 200 (application/json)
+
+        {
+            "account_id": "ccf773c1-be31-4570-8773-72e10a006bca",
+            "role_id": "b436930c-ab88-4b21-93df-6a4919355309"
+        }
+
+# Remove [DELETE]
+Remove specified role from an account.
+
++ Response 200 (application/json)
+
+        {
+            "success": true
+        }
+
+        
+# Group Search
+
+Search indexed messages with provided query and return matched message's IDs.
+
+You can than use content-related APIs like 'messageAbstract', 'message', 'header', 'body' to get the part of message you need.
+
+# GET /search?query=all&from=0&size=30&indices=20140421160000.c1,20140420110000.c2&paging=300000
+Return first page of search results sort by date in descending order.
+
++ Parameters
+
+    + query (required, string, `all`) ... Query string with Lucene query syntax, you can use keyword 'all' to return all messages.
+    
+    + from (required, number, `0`) ... The starting point of search results in a page, this is convenient while you only need to get the last n results.
+    
+    + size (required, number, `30`) ... Numbers of search results in one page.    
+    
+    + indices (optional, string, ``) ... Specify indices to search, default will search all indices.
+    
+    + paging (optional, number, `0`) ... Search result's keep alive time limits in milisecond.
+
+
++ Response 200 (application/json)
+
+        {
+            "id":"1",
+            "totalHits": "5",
+            "tookInMillis": "10",
+            "hits": [
+            {"id":"1", "storeId":"20140421160000.c1"},
+            {"id":"2", "storeId":"20140421160000.c1"},
+            {"id":"3", "storeId":"20140421160000.c1"}
+            ]
+        }
+
+# GET /search/scroll/{search_id}
+Return next page of search results with specified search ID.
+
++ Parameters
+
+    + search_id (required, string, `1`) ... Id of a scrolling search
+
++ Response 200 (application/json)
+
+        {
+            "id":"1",
+            "totalHits": "5",
+            "tookInMillis": "10",
+            "hits": [
+            {"id":"1", "storeId":"20140421160000.c1"},
+            {"id":"2", "storeId":"20140421160000.c1"},
+            {"id":"3", "storeId":"20140421160000.c1"}
+            ]
+        }
+
+# Group Message
+
+Return partial/whole content of message with specified message ID.
+        
+# GET /message/{message_id}
+Return entire message contents with specified message ID.
+
++ Parameters
+
+    + message_id (required, string, `1`) ... Id of a message
+
++ Response 200 (application/json)
+
+        {
+            "messageId": "<524903a4.06a3420a.62b2.ffff85bbSMTPIN_ADDED_MISSING@mx.google.com>",
+            "from": "<estatement@citibank.com.tw>",
+            "to": "aaa@test.com",
+            "date": "1380152103",
+            "subject": "=?UTF-8?Q?Credit_Card_Electronic_Statement?=",
+            "header": "Received: by 10.15.32.200 with SMTP id a48csp78713eev;        Sun, 29 Sep 2013 21:52:58 -0700 (PDT)",
+            "body": {
+            "plain":"MIME-Version: 1.0 test", 
+            "html":"<html>MIME-Version: 1.0 test</html>",
+            "raw":"raw", 
+            "stripped":"stripped"
+            },
+            "attachments": [{
+                "contentType": "application/pdf",
+                "name": "estatement.pdf",
+                "status": "normal",
+                "content": "test content"
+            },
+            {
+                "contentType": "application/pdf",
+                "name": "payment slip.pdf",
+                "status": "normal",
+                "content": "test content 2"            
+            }]
+        }        
+
+# GET /message/{message_id}/abstract
+Return message digest with specified message ID.
+
++ Parameters
+
+    + message_id (required, string, `1`) ... Id of a message
+    
++ Response 200 (application/json)
+
+        {
+            "storeId": "20140421160000.c1",
+            "id": 1,
+            "status": "Sent",
+            "fromIP": "210.63.32.50",
+            "fromHostname": "citi.estmt.com.tw",
+            "from": "<estatement@citibank.com.tw>",
+            "fromGroup": "NO_GROUP",
+            "to": "aaa@test.com",
+            "toGroup": "ccf773c1-be31-4570-8773-72e10a006bca",
+            "date": "380152103",
+            "subject": "=?UTF-8?Q?Credit_Card_Electronic_Statement?=",
+            "size": "1222583",
+            "attachments": "estatement.pdf, payment slip.pdf",
+            "blockCause": "ASRC_pattern_811 matched",
+            "comment",  ""
+        }                
+        
+# GET /message/{message_id}/header
+Return message's header part with specified message ID.
+
++ Parameters
+
+    + message_id (required, string, `1`) ... Id of a message
+
++ Response 200 (application/json)
+
+        { "header": "Received: by 10.15.32.200 with SMTP id a48csp78713eev;        Sun, 29 Sep 2013 21:52:58 -0700 (PDT)"}                        
+
+# GET /message/{message_id}/body
+Return message's body part with specified message ID.
+
++ Parameters
+
+    + message_id (required, string, `1`) ... Id of a message
+
++ Response 200 (application/json)
+
+        {
+            "plain":"MIME-Version: 1.0 test", 
+            "html":"<html>MIME-Version: 1.0 test</html>",
+            "raw":"raw", 
+            "stripped":"stripped"
+        }
+
+# GET /message/{message_id}/raw
+Return raw message with specified message ID.
+
++ Parameters
+
+    + message_id (required, string, `1`) ... Id of a message
+
++ Response 200 (application/json)
+
+        { "raw": "Received: from mshome-d73e6fcb (111-240-147-71.dynamic.hinet.net [111.240.147.71]) 
+        by spam.sinopro.local with SMTP id rAS39twc005105; Thu, 28 Nov 2013 11:09:55 +0800 (GMT-8) 
+        (envelope-from lordosisafrica@voanews.com) 
+        Received: (from root@localhost) by mail1.voanews.com (8.11.3/8.11.3) id k6V3OhN56087; Thu, 28 Nov 2013 03:09:45 -0800 (PDT envelope-from root) 
+        Date: Thu, 28 Nov 2013 02:39:31 -0800 
+        Message-Id: <27323843884695.wHyIZXghEz@procession> 
+        X-Mailer: phpmailer [version 1.41] 
+        X-BeenThere: fruition@mailman.voanews.com 
+        X-Kaspersky: Checking  
+        Content-Type: text/plain; charset="us-ascii" 
+        Content-Transfer-Encoding: 7bit 
+        To: <susan.chao@sinopro.com.tw> 
+        From: "Enlargement pils Free trials" <lordosisafrica@voanews.com> 
+        Subject: Educating the young on ways on have fun 
+        X-DNSRBL:  
+        X-MAIL: spam.sinopro.local rAS39twc005105  
+        
+        Sex will never be the same again http://azuaabogados.com/litmusskittle/"}
+
+# Group Store
+The following is a section of resources related to MP's data, includes backup / restore / archive / mount / unmount
+
+# PUT /store/archive/byQuery
+Create archive by provide a search query. 
+Note: nodeId in request is optional, will use current connected node if not specified.
+
++ Request (application/json)
+
+        { "nodeId": "c1",
+          "query": "SMTP_TO:john",
+          "path": "/data/archive_john",
+          "name": "archive_john"
+        }
+
++ Response 200 (application/json)
+
+        { "archive": "Task started"}
+
+# PUT /store/archive/byTime
+Create archive by provide a time range. 
+Note: nodeId in request is optional, will use current connected node if not specified.
+
++ Request (application/json)
+
+        { "nodeId": "c1",
+          "beginTime": 0,
+          "endTime": 1404282554000,
+          "path": "/data/archive_test"
+        }
+
++ Response 200 (application/json)
+
+        { "archive": "Task started"}
+
+# GET /store/archive/status
+Return current archive task status.
+
+
++ Response 200 (application/json)
+
+        { 
+          "name": " "archive_test",
+          "startTime": "20140702142914",
+          "endTime": "20140702142944",
+          "state": "Success",
+          "reason": ""
+        }
+
+
+# List archives [/store/archive/list]
+
+# List mounted archives [GET]
+Return current mounted archives.
+
+
++ Response 200 (application/json)
+
+        { "archives": ["archive_test", "archive_john"] }
+
+# List archives at specified path [POST]
+Return archives at specified path.
+
++ Request (application/json)
+
+        { "nodeId": "c1",
+          "path": "/data"
+        }
+
++ Response 200 (application/json)
+
+        { "archives": ["archive_test", "archive_john"] }
+
+# POST /store/archive/abort
+Abort current archive task. 
+Note: nodeId in request is optional, will use current connected node if not specified.
+
++ Response 200 (application/json)
+
+        { "archive": "Abort command sent"}
+
+# Mount and unmount archive [/store/archive]
+
+## Mount archive [POST]
+
+Mount an archive. 
+Note: nodeId in request is optional, will use current connected node if not specified.
+
++ Request (application/json)
+
+        { "nodeId": "c1",
+          "name": "archive_test",
+          "path": "/data/archive_test"
+        }
+
++ Response 200 (application/json)
+
+        { "archive": "Archive archive_test mounted successfully"}
+
+## Unmount archive [DELETE]
+
+Unmount an archive. 
+Note: nodeId in request is optional, will use current connected node if not specified.
+
++ Request (application/json)
+
+        { "nodeId": "c1",
+          "name": "archive_test"
+        }
+
++ Response 200 (application/json)
+
+        { "archive": "Archive archive_test unMounted successfully"}
+
+# Backup and restore [/store/backup/{backup_name}]
+
+## Create backup [PUT]
+
+Create backup. 
+Note: nodeId in request is optional, will use current connected node if not specified.
+
++ Request (application/json)
+
+        { "nodeId": "c1" }
+
++ Response 200 (application/json)
+
+        { "backup": "Task started"}
+
+## Show backup status [GET]
+
+Return backup status with specified backup name. 
+Note: can also use ?nodeId={node_id} to query backup in specified node.
+
++ Response 200 (application/json)
+
+        [{ 
+          "name": "backupTest",
+          "indices": ["20140702150100.c1"],
+          "startTime": "20140702142914",
+          "endTime": "20140702142944",
+          "state": "Success",
+          "reason": ""
+        }]
+
+## Restore from backup [POST]
+
+Restore from a backup, one can choose to restore specified indices only or all indices if an empty list is passed.
+Note: nodeId in request is optional, will use current connected node if not specified.
+
++ Request (application/json)
+
+        { 
+          "nodeId": "c1", 
+          "indices": []
+        }
+
++ Response 200 (application/json)
+
+        { "restore": "Restore from backup {backup_name} complete successfully"}
+
+## Delete backup [DELETE]
+
+Delete a backup.
+Note: nodeId in request is optional, will use current connected node if not specified.
+
++ Request (application/json)
+
+        { "nodeId": "c1" }
+
++ Response 200 (application/json)
+
+        { "backup": "Backup {backup_name} deleted successfully"}
+        
+# GET /store/backup
+Return all backup status.
+
+
++ Response 200 (application/json)
+
+        [
+         {"name": "backupTest",
+          "indices": ["20140702150100.c1"],
+          "startTime": "20140702142914",
+          "endTime": "20140702142944",
+          "state": "Success",
+          "reason": ""
+         },
+         {"name": "backupTest2",
+          "indices": ["20140702150100.c1"],
+          "startTime": "20140702142914",
+          "endTime": "20140702142944",
+          "state": "Success",
+          "reason": ""}
+        ]
+
+# GET /store/import/list?nodeId={nodeId}
+List importers
+
++ Parameters
+
+    + nodeId (optional, string, `c1`) ... Id of a node
+    
++ Response 200 (application/json)
+
+        ["711483066"]
+
+# GET /store/import/imap?nodeId={nodeId}
+Get imap / pop3 importer config if existed
+
++ Parameters
+
+    + nodeId (optional, string, `c1`) ... Id of a node
+    
++ Response 200 (application/json)
+
+        { 
+          "config":{
+            "usePop3": false,
+            "serverAddress": "127.0.0.1",
+            "serverPort": 143,
+            "useSSL": false,
+            "account": "admin",
+            "password": "1234",
+            "interval": 15,
+            "startHour": 0,
+            "startMinute": 0,
+            "endHour": 0,
+            "endMinute": 0,
+            "timeZone": "Etc/UTC",
+            "receivingLimits": 1000,
+            "deleteAfterReceived": true
+          }
+        }
+
+# POST /store/import/pst
+
+Request to import mails from target pst file
+Note: nodeId in request is optional, will use current connected node if not specified.
+
++ Request (application/json)
+
+        { 
+          "nodeId: "c1",
+          "dataPath": "/data/backup.pst",
+          "config":{
+            "defaultAddress": "127.0.0.1", 
+            "defaultDomain": "localhost"
+          }
+        }
+
++ Response 200 (application/json)
+
+        { "id": "711483066"}
+
+# POST /store/import/eml
+
+Request to import mails from target eml file, support zip/gzip compressed input.
+Note: nodeId in request is optional, will use current connected node if not specified.
+
++ Request (application/json)
+
+        { 
+          "nodeId: "c1",
+          "dataPath": "/data/backup.zip",
+          "config":{
+            "address": "127.0.0.1", 
+            "domain": "localhost",
+            "sender": "Mailer-Daemon@localhost",
+            "recipient": "root@localhost"
+          }
+          
+        }
+
++ Response 200 (application/json)
+
+        { "id": "711483066"}
+
+# POST /store/import/imap
+
+Request to import mails from remote mail server which support pop3/imap.
+Note: nodeId in request is optional, will use current connected node if not specified.
+
++ Request (application/json)
+
+        { 
+          "nodeId: "c1",
+          "config":{
+            "usePop3": false,
+            "serverAddress": "127.0.0.1",
+            "serverPort": 143,
+            "useSSL": false,
+            "account": "admin",
+            "password": "1234",
+            "interval": 15,
+            "startHour": 0,
+            "startMinute": 0,
+            "endHour": 0,
+            "endMinute": 0,
+            "receivingLimits": 1000,
+            "deleteAfterReceived": true
+          }
+        }
+
++ Response 200 (application/json)
+
+        { "id": "711483066"}
+
+
+# importers status management [/store/import/{id}]
+
+## Query importer status [GET /store/import/{id}?nodeId={nodeId}]
+
+Return importer status with specified importer id
+
++ Parameters
+
+    + nodeId (optional, string, `c1`) ... Id of a node
+    
++ Response 200 (application/json)
+
+        {"name": "/data/archive.pst",
+          "startTime": "20140702142914",
+          "endTime": "20140702142944",
+          "state": "Success",
+          "reason": ""
+         }
+
+
+## Request remove importer record [DELETE]
+
+Request to remove importer record
+Note: nodeId in request is optional, will use current connected node if not specified.
+
++ Request (application/json)
+
+        { 
+          "nodeId: "c1"
+        }
+
++ Response 200 (application/json)
+
+        { "success": true}
+
+# POST /store/import/{id}/abort
+
+Request to abort current importing process of specified importer id
+
++ Request (application/json)
+
+        { 
+          "nodeId: "c1"
+        }
+
++ Response 200 (application/json)
+
+        { "success": true}
+
+# Group Filter
+Data type definitions:
+
+1. Filter node
+
+        mailet node:
+        {
+            "type": "mailet",
+            "id": "id",
+            "class": "class name",
+            "config": "config string"
+        }
+        matcher node:
+        {
+            "type": "matcher",
+            "id": "id",
+            "class": "class name",
+            "config": "config string",
+            "match": [
+                mailet/matcher node,
+                ...
+            ],
+            "notMatch": [
+                mailet/matcher node,
+                ...
+            ]
+        }            
+
+1. Position
+
+        {
+            "init": [
+                {"index": 5, "leaf": "match"},
+                ...
+            ]
+            "tail": 2
+        }
+
+# Currently implemented matchers:
+
+## StandardMatcher
+
++ Config Formats: sender regex, recipient regex, body regex, recipient type string, ip string, size lower/upper limit, recipient size upper limit, bcc size upper limit, all optional
+
+        {
+            "class": "com.sn.mailplatform.matchers.StandardMatcher",
+            "config": {
+                "sender": [regex strings]
+                "recipient": [regex strings]
+                "body": [regex strings]
+                "recipientType": one of "To", "Cc" and "Bcc", case sensitive
+                "ip": "string"
+                "size": {
+                    "upper": int_szie
+                    "lower": int_size
+                }
+                "recipientSize": int_size
+                "bccSize": int_size
+            }
+        }
+
+## HasMailAttribute
+
++ Config Formats: account_id, attribute name, attribute value
+
+        {
+            "class": "com.sn.mailplatform.matchers.HasMailAttribute",
+            "config": "b436930c-ab88-4b21-93df-6a4919355309, status, queued"
+        }
+
+# Currently implemented mailets:
+
+## SetMimeHeader
+
++ Config Formats: "&lt;name&gt;MPFilter&lt;/name&gt;&lt;value&gt;xxx matcher matched&lt;/value&gt;"
+
+        {
+            "class": "com.sn.mailplatform.mailet.SetMimeHeader",
+            "config": "<name>MPFilter</name><value>account-1</value>"
+        }
+
+## SetMailAttributes
+
++ Config Formats: "&lt;attrname&gt;attrvalue&lt;/attrname&gt;"
+
+        {
+            "class": "com.sn.mailplatform.mailet.SetMailAttributes",
+            "config": "<attrname>attrvalue</attrname>"
+        }
+
+# GET /filter/list
+List group ID of manageable filter and whether user can manage system filter.
+
+Returns JSON with "group" and "system" properties, "group" is an array contains 
+JSONs with "id" and "permission" properties. "system" is a string contains permission.
+
+If there is no "system" properties, it means current user has no permission to manage system filter.
+
+Permission string can be "View" or "Update", "Update" implies "View".
+
++ Response 200 (application/json)
+
+        {
+            "group": [{"id": "b436930c-ab88-4b21-93df-6a4919355309",
+                "permission": "Update"},
+                {"id": "6cb94825-dfba-4f09-bcce-a5a0ff56a351",
+                "permission": "View"}
+            ],
+            "system": "View"
+        }
+
+# GET /filter/{node_id}
+Get filter node by given node ID
+
++ Response 200 (application/json)
+
+        {
+            "type":"Matcher",
+            "id":"d555189d-9af5-4080-91f2-157a2a982323",
+            "class":"com.sn.mailplatform.matcher.StandardMatcher","
+            config":{
+                "name":"audit test"
+                "sender":["test@test.com"],
+                "userId":"67d3ec48-ba47-45b4-be8d-6261fd62e2ab",
+                "subject":["^(?!prefix)"]
+            }
+        }
+
+# Account Filter [/filter/account/{account_id}]
+
++ Parameters
+
+    + account_id (required, UUID, `b436930c-ab88-4b21-93df-6a4919355309`) ... Id of a account
+    
+## Get filter definition [GET]
+Return filter definition of specified account filter which will be presented as a filter node array.
+
++ Response 200 (application/json)
+
+        [
+            {
+                "type": "mailet",
+                "id": "id",
+                "class": "class name",
+                "config": "config string"
+            },
+            {
+                "type": "mailet",
+                "id": "id2",
+                "class": "class name",
+                "config": "config string"
+            }            
+        ]
+        
+## Create new filter node [PUT]
+Create new filter node in specified account filter
+
++ Request mailet creation (application/json)
+
+        {
+            "position": {
+                "init": [
+                    {"leaf": "notMatch", "index": 1}
+                ],
+                "tail": 1
+            },
+            "class": "clazz",
+            "config": "config",
+            "node_type": "mailet"
+        }
+
++ Request matcher creation (application/json)
+
+        {
+            "position": {
+                "init": [
+                    {"leaf": "match", "index": 1},
+                    {"leaf": "notMatch", "index": 2}
+                ],
+                "tail": 2
+            },
+            "class": "clazz",
+            "config": "config",
+            "node_type": "matcher"
+        }
+        
++ Response 200 (application/json)
+
+        {"id": "6cb94825-dfba-4f09-bcce-a5a0ff56a351"}
+        
+
+# Account Filter Node [/filter/account/{account_id}/{node_id}]
+
++ Parameters
+
+    + account_id (required, UUID, `b436930c-ab88-4b21-93df-6a4919355309`) ... Id of a account
+    
+    + node_id (required, UUID, `6cb94825-dfba-4f09-bcce-a5a0ff56a351`) ... Id of a filter node
+
+## Delete node [DELETE]
+Remove specified filter node from specified filter, returns removed node's definition.
+    
++ Response 200 (application/ json)
+
+        {
+            "type": "mailet",
+            "id": "id",
+            "class": "class name",
+            "config": "config string"
+        }
+        
+## Update node configuration [POST]
+Update specified filter node in specified filter
+
++ Request (application/json)
+
+        {
+            "config": "content"
+        }
+    
++ Response 200 (application/ json)
+
+        {
+            "success": true
+        }
+
+# Account Filter Node [/filter/account/{account_id}/{node_id}/move]
+
+## Move node [POST]
+Move specified account filter node in specified filter to new position, returns new position.
+
++ Parameters
+
+    + account_id (required, UUID, `b436930c-ab88-4b21-93df-6a4919355309`) ... Id of a account
+    
+    + node_id (required, UUID, `6cb94825-dfba-4f09-bcce-a5a0ff56a351`) ... Id of a filter node
+    
++ Request (application/json)
+
+        {
+            "init": [
+                {"index": 1, "leaf": "match",},
+                {"index": 2, "leaf": "notMatch"}
+            ],        
+            "tail": 2
+        }
+    
++ Response 200 (application/ json)
+
+        {
+            "init": [
+                {"index": 1, "leaf": "match"},
+                {"index": 2, "leaf": "notMatch"}
+            ],
+            "tail": 2,
+        }
+
+
+# Pre Group Filter [/filter/group/{group_id}/pre]
+
++ Parameters
+
+    + group_id (required, UUID, `b436930c-ab88-4b21-93df-6a4919355309`) ... Id of a group
+    
+## Get filter definition [GET]
+Return filter definition of specified pre-group filter which will be presented as a filter node array.
+
++ Response 200 (application/json)
+
+        [
+            {
+                "type": "mailet",
+                "id": "id",
+                "class": "class name",
+                "config": "config string"
+            },
+            {
+                "type": "mailet",
+                "id": "id2",
+                "class": "class name",
+                "config": "config string"
+            }            
+        ]
+        
+## Create new filter node [PUT]
+Create new filter node in specified pre-group filter
+
++ Request mailet creation (application/json)
+
+        {
+            "position": {
+                "init": [
+                    {"leaf": "notMatch", "index": 1}
+                ],
+                "tail": 1
+            },
+            "class": "clazz",
+            "config": "config",
+            "node_type": "mailet"
+        }
+
++ Request matcher creation (application/json)
+
+        {
+            "position": {
+                "init": [
+                    {"leaf": "match", "index": 1},
+                    {"leaf": "notMatch", "index": 2}
+                ],
+                "tail": 2
+            },
+            "class": "clazz",
+            "config": "config",
+            "node_type": "matcher"
+        }
+        
++ Response 200 (application/json)
+
+        {"id": "6cb94825-dfba-4f09-bcce-a5a0ff56a351"}
+        
+
+# Pre Group Filter Node [/filter/group/{group_id}/pre/{node_id}]
+
++ Parameters
+
+    + group_id (required, UUID, `b436930c-ab88-4b21-93df-6a4919355309`) ... Id of a group
+    
+    + node_id (required, UUID, `6cb94825-dfba-4f09-bcce-a5a0ff56a351`) ... Id of a filter node
+
+## Delete node [DELETE]
+Remove specified filter node from specified filter, returns removed node's definition.
+    
++ Response 200 (application/ json)
+
+        {
+            "type": "mailet",
+            "id": "id",
+            "class": "class name",
+            "config": "config string"
+        }
+        
+## Update node configuration [POST]
+Update specified filter node in specified filter
+
++ Request (application/json)
+
+        {
+            "config": "content"
+        }
+    
++ Response 200 (application/ json)
+
+        {
+            "success": true
+        }
+
+# Pre Group Filter Node [/filter/group/{group_id}/pre/{node_id}/move]
+
+## Move node [POST]
+Move specified filter node in specified filter to new position, returns new position.
+
++ Parameters
+
+    + group_id (required, UUID, `b436930c-ab88-4b21-93df-6a4919355309`) ... Id of a group
+    
+    + node_id (required, UUID, `6cb94825-dfba-4f09-bcce-a5a0ff56a351`) ... Id of a filter node
+    
++ Request (application/json)
+
+        {
+            "init": [
+                {"index": 1, "leaf": "match",},
+                {"index": 2, "leaf": "notMatch"}
+            ],        
+            "tail": 2
+        }
+    
++ Response 200 (application/ json)
+
+        {
+            "init": [
+                {"index": 1, "leaf": "match"},
+                {"index": 2, "leaf": "notMatch"}
+            ],
+            "tail": 2,
+        }
+
+# Post Group Filter [/filter/group/{group_id}/post]
+
++ Parameters
+
+    + group_id (required, UUID, `b436930c-ab88-4b21-93df-6a4919355309`) ... Id of a group
+    
+## Get filter definition [GET]
+Return filter definition of specified post-group filter which will be presented as a filter node array.
+
++ Response 200 (application/json)
+
+        [
+            {
+                "type": "mailet",
+                "id": "id",
+                "class": "class name",
+                "config": "config string"
+            },
+            {
+                "type": "mailet",
+                "id": "id2",
+                "class": "class name",
+                "config": "config string"
+            }            
+        ]
+        
+## Create new filter node [PUT]
+Create new filter node in specified post-group filter
+
++ Request mailet creation (application/json)
+
+        {
+            "position": {
+                "init": [
+                    {"leaf": "notMatch", "index": 1}
+                ],
+                "tail": 1
+            },
+            "class": "clazz",
+            "config": "config",
+            "node_type": "mailet"
+        }
+
++ Request matcher creation (application/json)
+
+        {
+            "position": {
+                "init": [
+                    {"leaf": "match", "index": 1},
+                    {"leaf": "notMatch", "index": 2}
+                ],
+                "tail": 2
+            },
+            "class": "clazz",
+            "config": "config",
+            "node_type": "matcher"
+        }
+        
++ Response 200 (application/json)
+
+        {"id": "6cb94825-dfba-4f09-bcce-a5a0ff56a351"}
+        
+
+# Post Group Filter Node [/filter/group/{group_id}/post/{node_id}]
+
++ Parameters
+
+    + group_id (required, UUID, `b436930c-ab88-4b21-93df-6a4919355309`) ... Id of a group
+    
+    + node_id (required, UUID, `6cb94825-dfba-4f09-bcce-a5a0ff56a351`) ... Id of a filter node
+
+## Delete node [DELETE]
+Remove specified filter node from specified filter, returns removed node's definition.
+    
++ Response 200 (application/ json)
+
+        {
+            "type": "mailet",
+            "id": "id",
+            "class": "class name",
+            "config": "config string"
+        }
+        
+## Update node configuration [POST]
+Update specified filter node in specified filter
+
++ Request (application/json)
+
+        {
+            "config": "content"
+        }
+    
++ Response 200 (application/ json)
+
+        {
+            "success": true
+        }
+
+# Post Group Filter Node [/filter/group/{group_id}/post/{node_id}/move]
+
+## Move node [POST]
+Move specified filter node in specified filter to new position, returns new position.
+
++ Parameters
+
+    + group_id (required, UUID, `b436930c-ab88-4b21-93df-6a4919355309`) ... Id of a group
+    
+    + node_id (required, UUID, `6cb94825-dfba-4f09-bcce-a5a0ff56a351`) ... Id of a filter node
+    
++ Request (application/json)
+
+        {
+            "init": [
+                {"index": 1, "leaf": "match",},
+                {"index": 2, "leaf": "notMatch"}
+            ],        
+            "tail": 2
+        }
+    
++ Response 200 (application/ json)
+
+        {
+            "init": [
+                {"index": 1, "leaf": "match"},
+                {"index": 2, "leaf": "notMatch"}
+            ],
+            "tail": 2,
+        }
+
+# Pre System Filter [/filter/system/pre]
+
+
+## Get filter definition [GET]
+Return filter definition of specified pre-system filter which will be presented as a filter node array.
+
++ Response 200 (application/json)
+
+        [
+            {
+                "type": "mailet",
+                "id": "id",
+                "class": "class name",
+                "config": "config string"
+            },
+            {
+                "type": "mailet",
+                "id": "id2",
+                "class": "class name",
+                "config": "config string"
+            }            
+        ]
+        
+## Create new filter node [PUT]
+Create new filter node in specified pre-system filter
+
++ Request mailet creation (application/json)
+
+        {
+            "position": {
+                "init": [
+                    {"leaf": "notMatch", "index": 1}
+                ],
+                "tail": 1
+            },
+            "class": "clazz",
+            "config": "config",
+            "node_type": "mailet"
+        }
+
++ Request matcher creation (application/json)
+
+        {
+            "position": {
+                "init": [
+                    {"leaf": "match", "index": 1},
+                    {"leaf": "notMatch", "index": 2}
+                ],
+                "tail": 2
+            },
+            "class": "clazz",
+            "config": "config",
+            "node_type": "matcher"
+        }
+        
++ Response 200 (application/json)
+
+        {"id": "6cb94825-dfba-4f09-bcce-a5a0ff56a351"}
+        
+
+# Pre System Filter Node [/filter/system/pre/{node_id}]
+
++ Parameters
+    
+    + node_id (required, UUID, `6cb94825-dfba-4f09-bcce-a5a0ff56a351`) ... Id of a filter node
+
+## Delete node [DELETE]
+Remove specified filter node from specified filter, returns removed node's definition.
+    
++ Response 200 (application/ json)
+
+        {
+            "type": "mailet",
+            "id": "id",
+            "class": "class name",
+            "config": "config string"
+        }
+        
+## Update node configuration [POST]
+Update specified filter node in specified filter
+
++ Request (application/json)
+
+        {
+            "config": "content"
+        }
+    
++ Response 200 (application/ json)
+
+        {
+            "success": true
+        }
+
+# Pre System Filter Node [/filter/system/pre/{node_id}/move]
+
+## Move node [POST]
+Move specified filter node in specified filter to new position, returns new position.
+
++ Parameters
+    
+    + node_id (required, UUID, `6cb94825-dfba-4f09-bcce-a5a0ff56a351`) ... Id of a filter node
+    
++ Request (application/json)
+
+        {
+            "init": [
+                {"index": 1, "leaf": "match",},
+                {"index": 2, "leaf": "notMatch"}
+            ],        
+            "tail": 2
+        }
+    
++ Response 200 (application/ json)
+
+        {
+            "init": [
+                {"index": 1, "leaf": "match"},
+                {"index": 2, "leaf": "notMatch"}
+            ],
+            "tail": 2,
+        }
+
+# Post System Filter [/filter/system/post]
+
+
+## Get filter definition [GET]
+Return filter definition of specified post-system filter which will be presented as a filter node array.
+
++ Response 200 (application/json)
+
+        [
+            {
+                "type": "mailet",
+                "id": "id",
+                "class": "class name",
+                "config": "config string"
+            },
+            {
+                "type": "mailet",
+                "id": "id2",
+                "class": "class name",
+                "config": "config string"
+            }            
+        ]
+        
+## Create new filter node [PUT]
+Create new filter node in specified post-system filter
+
++ Request mailet creation (application/json)
+
+        {
+            "position": {
+                "init": [
+                    {"leaf": "notMatch", "index": 1}
+                ],
+                "tail": 1
+            },
+            "class": "clazz",
+            "config": "config",
+            "node_type": "mailet"
+        }
+
++ Request matcher creation (application/json)
+
+        {
+            "position": {
+                "init": [
+                    {"leaf": "match", "index": 1},
+                    {"leaf": "notMatch", "index": 2}
+                ],
+                "tail": 2
+            },
+            "class": "clazz",
+            "config": "config",
+            "node_type": "matcher"
+        }
+        
++ Response 200 (application/json)
+
+        {"id": "6cb94825-dfba-4f09-bcce-a5a0ff56a351"}
+        
+
+# Post System Filter Node [/filter/system/post/{node_id}]
+
++ Parameters
+    
+    + node_id (required, UUID, `6cb94825-dfba-4f09-bcce-a5a0ff56a351`) ... Id of a filter node
+
+## Delete node [DELETE]
+Remove specified filter node from specified filter, returns removed node's definition.
+    
++ Response 200 (application/ json)
+
+        {
+            "type": "mailet",
+            "id": "id",
+            "class": "class name",
+            "config": "config string"
+        }
+        
+## Update node configuration [POST]
+Update specified filter node in specified filter
+
++ Request (application/json)
+
+        {
+            "config": "content"
+        }
+    
++ Response 200 (application/ json)
+
+        {
+            "success": true
+        }
+
+# Post System Filter Node [/filter/system/post/{node_id}/move]
+
+## Move node [POST]
+Move specified filter node in specified filter to new position, returns new position.
+
++ Parameters
+    
+    + node_id (required, UUID, `6cb94825-dfba-4f09-bcce-a5a0ff56a351`) ... Id of a filter node
+    
++ Request (application/json)
+
+        {
+            "init": [
+                {"index": 1, "leaf": "match",},
+                {"index": 2, "leaf": "notMatch"}
+            ],        
+            "tail": 2
+        }
+    
++ Response 200 (application/ json)
+
+        {
+            "init": [
+                {"index": 1, "leaf": "match"},
+                {"index": 2, "leaf": "notMatch"}
+            ],
+            "tail": 2,
+        }
+
+# AntiSpam filter settings [/filter/antispam]
+
+## Get settings [GET]
+Return antispam filter settings.
+
++ Response 200 (application/json)
+
+        {
+            "contentAndMarkupHash": {
+                "enabled": true,
+                "combineSubject": true,
+                "contentHashRblServer": ["ffpt.softsqr.com"],
+                "markupHashRblServer": ["bfpt.softsqr.com"]
+            },
+            "attachmentHash": {
+                "enabled": true,
+                "hashRblServer": ["afpt.softsqr.com"]
+            },
+            "bouncedSpam": {
+                "enabled": true,
+                "sizeUpperBound": 10240
+            },
+            "headerRbl": {
+                "enabled": true,
+                "rblServer": ["rbl.softsqr.com"],
+                "checkPrivate": false
+            },
+            "uriBl": {
+                "enabled": true,
+                "uriRblServer": ["multi.surbl.org"],
+                "maxLookup": 5
+            },
+            "asrcPattern": {
+                "enabled": true
+            },
+            "invalidHeader": {
+                "enabled": true
+            },
+            "maliciousUrl": {
+                "enabled": true
+            },
+            "spamFeatureWeight": {
+                "nilsimsaContentHash": 100,
+                "nilsimsaMarkupHash": 100,
+                "attachmentHash": 100,
+                "headerRbl": 100,
+                "uribl": 100,
+                "bounce": 100,
+                "asrc": 100,
+                "invalidHeader": 100,
+                "maliciousUrl": 100,
+                "threshold": 100
+            }
+        }
+
+
+## Update settings [POST]
+Update antispam filter settings.
+
++ Request (application/json)
+
+        {
+            "contentAndMarkupHash": {
+                "enabled": true,
+                "combineSubject": true,
+                "contentHashRblServer": ["ffpt.softsqr.com"],
+                "markupHashRblServer": ["bfpt.softsqr.com"]
+            },
+            "attachmentHash": {
+                "enabled": true,
+                "hashRblServer": ["afpt.softsqr.com"],
+            },
+            "bouncedSpam": {
+                "enabled": true,
+                "sizeUpperBound": 10240
+            },
+            "headerRbl": {
+                "enabled": true,
+                "rblServer": ["rbl.softsqr.com"],
+                "checkPrivate": false
+            },
+            "uriBl": {
+                "enabled": true,
+                "uriRblServer": ["multi.surbl.org"],
+                "maxLookup": 5
+            },
+            "asrcPattern": {
+                "enabled": true
+            },
+            "invalidHeader": {
+                "enabled": true
+            },
+            "maliciousUrl": {
+                "enabled": true
+            },
+            "spamFeatureWeight": {
+                "nilsimsaContentHash": 100,
+                "nilsimsaMarkupHash": 100,
+                "attachmentHash": 100,
+                "headerRbl": 100,
+                "uribl": 100,
+                "bounce": 100,
+                "asrc": 100,
+                "threshold": 100
+            }
+        }
+    
++ Response 200 (application/ json)
+
+        {
+            "success": true
+        }
+
+# AntiSpam filter domain switches [/filter/antispam/{domain_id}]
+
+## Get settings [GET]
+Return domain's antispam filter on / off status.
+
++ Response 200 (application/json)
+
+        {
+            "contentAndMarkupHash": true,
+            "attachmentHash": true,
+            "bouncedSpam": true,
+            "headerRbl": true,
+            "uriBl": true,
+            "asrcPattern": true,
+            "invalidHeader": true,
+            "maliciousUrl": true
+        }
+
+## Update switches [POST]
+Update domains antispam filter on / off status.
+
++ Request (application/json)
+
+        {
+            "contentAndMarkupHash": true,
+            "attachmentHash": true,
+            "bouncedSpam": true,
+            "headerRbl": true,
+            "uriBl": true,
+            "asrcPattern": true,
+            "invalidHeader": false,
+            "maliciousUrl": true
+        }
+
++ Response 200 (application/ json)
+
+        {
+            "success": true
+        }
+
+# Default personal data patterns settings [/filter/pdp]
+
+## Get default patterns [GET]
+Return default personal data patterns settings.
+
++ Response 200 (application/json)
+
+        {
+
+            "identityCardNumber": {
+                "identityCardNumber": 1
+            },
+            "passportNumber": {
+                "passportNumber": 1
+            },
+            "identityCardNumberAndName": {
+                "identityCardNumber": 1,
+                "name": 1
+            },
+            "contactInformation": {
+                "mobileNumber": 1,
+                "telephoneNumber": 1,
+                "email": 1,
+                "address": 1
+            },
+            "birthdateAndName": {
+                "birthdate": 1,
+                "name": 1
+            },
+            "education": {
+                "education": 1,
+                "name": 1
+            },
+            "marriage": {
+                "marriage": 1,
+                "name": 1
+            },
+            "financial": {
+                "creditCardNumber": 1,
+                "bankAccount": 1
+            }
+        }
+
+## Update default patterns [POST]
+Update default personal data pattern settings.
+
++ Request (application/json)
+
+        {
+
+            "identityCardNumber": {
+                "identityCardNumber": 1
+            },
+            "passportNumber": {
+                "passportNumber": 1
+            },
+            "identityCardNumberAndName": {
+                "identityCardNumber": 1,
+                "name": 1
+            },
+            "contactInformation": {
+                "mobileNumber": 1,
+                "telephoneNumber": 1,
+                "email": 1,
+                "address": 1
+            },
+            "birthdateAndName": {
+                "birthdate": 1,
+                "name": 1
+            },
+            "education": {
+                "education": 1,
+                "name": 1
+            },
+            "marriage": {
+                "marriage": 1,
+                "name": 1
+            },
+            "financial": {
+                "creditCardNumber": 1,
+                "bankAccount": 1
+            }
+        }
+
++ Response 200 (application/ json)
+
+        {
+            "success": true
+        }
+
+# Custom personal data patterns settings [/filter/pdp/custom]
+
+## Get custom patterns [GET]
+Return custom personal data patterns.
+
++ Response 200 (application/json)
+
+        {
+            "testRule": {
+                "identityCardNumber": 1,
+                "passportNumber": 1
+            }
+        }
+
+## Update custom pattern [POST]
+Update custom personal data pattern.
+
++ Request (application/json)
+
+        {
+            "testRule": {
+                "identityCardNumberCount": 1,
+                "passPortNumberCount": 2
+            }
+        }
+
++ Response 200 (application/ json)
+
+        {
+            "success": true
+        }
+
+## Remove custom pattern [DELETE]
+Remove custom personal data pattern.
+
++ Request (application/json)
+
+        {
+            "rule": ["testRule"]
+        }
+
++ Response 200 (application/ json)
+
+        {
+            "success": true
+        }
+
+
+# Group License
+The following is a section of resources related to the license.
+
+# License [/license]
+
+## Get license infomation [GET]
+Return license information.
+
++ Response 200 (application/json)
+
+        {
+            "isValid": true,
+            "goodBeforeDate": 14344443780000,
+            "numberOfLicenses": 1,
+            "features": ["Trial"]
+        }
+
+## Update license [POST]
+Update license
+
++ Request (application/json)
+
+        {
+            "license": "rO0ABXNyADFuZXQubmljaG9sYXN3aWxsaWFtcy5qYXZhLmxpY2Vuc2luZy5TaWduZWRMaWNlbnNlioT/n36yaoQCAAJbAA5saWNlbnNlQ29udGVudHQAAltCWwAQc2lnbmF0dXJlQ29udGVudHEAfgABeHB1cgACW0Ks8xf4BghU4AIAAHhwAAAAQHLI91KvEb68D0dEaxZ9jTBdoNUh3Kz8AIMmlLCnR3e6VsB42srOgIVkudzag9F8ACOPNwbqhimDig98HQBzt/R1cQB+AAMAAAEAYTS9TGyr1hyV/EneY8o56EZADuRtHpCmwjtxtOKcGik/08/QZryjtSx5+G5n0NCL9oq/bFceCGkETMTNeZOdzQy6seg4vDP6ishpcc5rZh4fKUjtiwr9Lfd7ozxXIn4+iakmV96XeD4tTfZVhplX5EOb9HugDK7rNImpg5p+WYSoyUqB6eoJ7BEPAwjeiM9dkT1Vf+ARyilRHXpjE19nn+zrmFc5ZSJCG3NYFA0R/TgSxyQh4x/r7xp5WFq4orVgVZPby81cyyEvD/h96DOvPfEqDRqbff6qKYVSJICeRmGDybHNSBpNt0aHQ6RCkMnjtPkIRuuHzZaJ9Gp/pIGESw=="
+        }
+    
++ Response 200 (application/ json)
+
+        {
+            "success": true
+        }
+
+# Group Log
+The following is a section of resources related to the log.
+
+# GET /log/access?beginTime=0&endTime=1434499200000&target=verb&value=view
+Return user access log within specified time range
+
++ Parameters
+
+    + beginTime (optional, number) ... Begin timestamp, default is 0.
+    
+    + endTime (optional, number) ... End timestamp, default is current timestamp.
+    
+    + target (optional, string) ... filter taget, default is "verb"
+    
+    + value  (optional, string) ... value to match in filter target
+
+
++ Response 200 (application/json)
+
+        [{
+            "timestamp": 1434499200000,
+            "ip": "192.168.80.10",
+            "subject": "AccountId(4194308)",
+            "verb": "view",
+            "obj": "report",
+            "predicates": {"ReportType":"MailFlowStatus","TimeUnit":"Hourly","Range":"24","Base":"1435200535877"}
+        }]
+
+# Group SMTP
+
+SMTP Server management interface.
+
+# GET /smtp/list
+List smtp server and current state
+
+
++ Response 200 (application/json)
+
+        [
+         {"name": "smtpserver",
+          "isRunning": true}
+        ]
+
+# Server configuration [/smtp/{server_name}]
+
+## Get configuration [GET]
+Return specified SMTP server configuration.
+
++ Response 200 (application/json)
+
+        {
+            "boundAddresses": "0.0.0.0:25",
+            "connectionBackLog": 200,
+            "connectionLimit": 0,
+            "connectionLimitPerIp": 0,
+            "connectionTimeout": 360,
+            "authorizedAddresses": "127.0.0.0/8",
+            "authRequired": "false",
+            "verifyIdentity": false,
+            "maxMessageSize": 0, 
+            "addressBracketsEnforcement": false,
+            "heloEnforcement": false,
+            "tlsAttributes": {
+                "useStartTLS": false,
+                "useSSL": false,
+                "keystore": "file://conf/keystore",
+                "secret": "yoursecret"
+            },
+            "handlers": [{
+                "class": "com.sn.mailplatform.smtp.fastfail.InvalidRcptRatio",
+                "config": {                                    
+                    "applyToAllDomain": false,           
+                    "invalidRecipientRatio": 99,         
+                    "enableRecipientRewriteTable": false,
+                    "temporaryFailListTtl": 300          
+                }
+            },
+            {
+                "class": "com.sn.mailplatform.smtp.fastfail.ConnectionPerIpPerTimeLimit",
+                "config": {                     
+                    "connectionPerIp": 40,
+                    "interval": 60        
+                }                     
+            }]
+        }
+
+## Update configuration [POST]
+Update specified SMTP server configuration with specified parameters, unassigned field will *not* be updated.
+
++ Request (application/json)
+
+        {
+            "boundAddresses": "0.0.0.0:25",
+            "connectionBackLog": 200,
+            "connectionLimit": 0,
+            "connectionLimitPerIp": 0,
+            "connectionTimeout": 360,
+            "authorizedAddresses": "127.0.0.0/8",
+            "authRequired": "false",
+            "verifyIdentity": false,
+            "maxMessageSize": "0", 
+            "addressBracketsEnforcement": false,
+            "heloEnforcement": false,
+            "tlsAttributes": {
+                "useStartTLS": false,
+                "useSSL": false,
+                "keystore": "file://conf/keystore",
+                "secret": "yoursecret"
+            },
+            "handlers": [{
+                "class": "com.sn.mailplatform.smtp.fastfail.InvalidRcptRatio",
+                "config": {                                    
+                    "applyToAllDomain": false,           
+                    "invalidRecipientRatio": 99,         
+                    "enableRecipientRewriteTable": false,
+                    "temporaryFailListTtl": 300          
+                }
+            },
+            {
+                "class": "com.sn.mailplatform.smtp.fastfail.ConnectionPerIpPerTimeLimit",
+                "config": {                     
+                    "connectionPerIp": 40,
+                    "interval": 60        
+                }                     
+            }]
+        }
+
++ Response 200 (application/ json)
+
+        { "updateSuccess": true }
+
+# SMTP authenticatiton configuration [/smtp/{server_name}/auth]
+
+## Get configuration [GET]
+Return specified SMTP server authentication configuration.
+
++ Response 200 (application/json)
+
+        {
+            "asWhitelisted": false,
+            "bypassDoS": false,
+            "antiGuessing": false,
+            "antiFraud": false,
+            "authSource":[
+                {
+                    "ip": "1.2.3.4",
+                    "domain": "default",
+                    "method": "pop3"          
+                }
+            ]
+        }
+
+## Update authentication configuration [POST]
+Update specified SMTP server authentication configuration with specified parameters, unassigned field will *not* be updated.
+
++ Request (application/json)
+
+        {
+            "asWhitelisted": false,
+            "bypassDoS": false,
+            "antiGuessing": false,
+            "antiFraud": false,
+            "authSource":[
+                {
+                    "ip": "1.2.3.5",
+                    "domain": "mp.sn.com",
+                    "method": "imap"          
+                }
+            ]
+        }
+
+
++ Response 200 (application/json)
+
+        {
+            "success": true
+        }
+
+# POST /smtp/{server_name}/start
+
+Starts specified SMTP server
+
++ Response 200 (application/ json)
+
+        { "startSuccess": true }
+        
+# POST /smtp/{server_name}/stop
+
+Stops specified SMTP server
+
++ Response 200 (application/ json)
+
+        { "stopSuccess": true }
+
+# POST /smtp/{server_name}/handler/enable{?index}
+
+Enables Nth fastfail handler of specified SMTP server.
+
++ Response 200 (application/ json)
+
+        {
+            "enabled": true
+        }                      
+        
+# POST /smtp/{server_name}/handler/disable{?index}
+
+Disable Nth fastfail handler of specified SMTP server.
+
++ Response 200 (application/ json)
+
+        {
+            "disabled": true
+        }                             
+
+# SMTP fastfail settings [/smtp/{server_name}/fastfail]
+
+## Get settings [GET]
+Return fastfail handlers settings.
+
++ Response 200 (application/json)
+
+        {
+            "blacklist": {
+                "enabled": true
+            },
+            "whitelist": {
+                "enabled": true
+            },
+            "connectionPerIpPerTimeLimit": {
+                "enabled": true,
+                "connectionPerIp": 40,
+                "interval": 60
+            },
+            "dnsRbl": {
+                "enabled": true,
+                "getDetail": false,
+                "blacklist": ["rbl.softsqr.com","pbl.spamhaus.org"],
+                "whitelist": [],
+                "bypassRelayingAllow": true,
+                "applyGreylist": false,
+                "greyListDuration": 1
+            },
+            "invalidRcptRatio": {
+                "enabled": true,
+                "applyToAllDomain": false,
+                "invalidRecipientRatio": 99,
+                "temporaryFailListTtl": 300
+            },
+            "validSenderDomain": {
+                "enabled": true
+            }
+        }
+
+
+## Update settings [POST]
+Update fastfail handlers settings.
+
++ Request (application/json)
+
+        {
+            "blacklist": {
+                "enabled": true
+            },
+            "whitelist": {
+                "enabled": true
+            },
+            "connectionPerIpPerTimeLimit": {
+                "enabled": true,
+                "connectionPerIp": 40,
+                "interval": 60
+            },
+            "dnsRbl": {
+                "enabled": true,
+                "getDetail": false,
+                "domainzones":{
+                    "blacklist": ["rbl.softsqr.com","pbl.spamhaus.org"],
+                    "whitelist": []
+                },
+                "bypassRelayingAllow": true,
+                "applyGreylist": false,
+                "greyListDuration": 1
+            },
+            "invalidRcptRatio": {
+                "enabled": true,
+                "applyToAllDomain": false,
+                "invalidRecipientRatio": 99,
+                "temporaryFailListTtl": 300
+            },
+            "validSenderDomain": {
+                "enabled": true
+            }
+        }
+    
++ Response 200 (application/ json)
+
+        {
+            "success": true
+        }
+
+# GET /smtp/networklist?list_type={name}
+Return network lists with specified *name*
+
++ Parameters
+
+    + name (optional, string, `RelayDomains`) ... list name, currently support BlackList, WhiteList, RestrictDomains, RelayDomains, AllowedBounceDomain
+    
++ Response 200 (application/json)
+
+        {
+            "address":  ["1.2.3.4"],
+            "domain":  ["test.com", "test2.com"]
+        }
+
+# Network list configuration [/smtp/networkList]
+SMTP Server network lists configurations
+
+# GET
+
+Return current network lists
+
++ Response 200 (application/json)
+
+        {
+            "networkLists": ["RelayDomains", "RestrictDomains"]
+        }
+
+# PUT
+
+Add new data into specified list.
+Data type can be "address" or "domain"
+
++ Request (application/json)
+
+        {
+            "updates": [
+                    {
+                        "name": "RelayDomains",
+                        "dataType":  "address",
+                        "value": "1.2.3.4"
+                    },
+                    {
+                        "name": "RelayDomains",
+                        "dataType":  "domain",
+                        "value": "test.com"
+                    } 
+            ]
+        }
+    
++ Response 200 (application/ json)
+
+        {
+            "success":  true
+        }
+
++ Response 200 (application/ json)
+
+        {
+            "error":  ["1.2.3.4","test.com"]
+        }
+
+# DELETE
+
+Remove data from specified list.
+Data type can be "address" or "domain"
+
++ Request (application/json)
+
+        {
+            "updates": [
+                    {
+                        "name": "RelayDomains",
+                        "dataType":  "address",
+                        "value": "1.2.3.4"
+                    },
+                    {
+                        "name": "RelayDomains",
+                        "dataType":  "domain",
+                        "value": "test.com"
+                    } 
+            ]
+        }
+    
++ Response 200 (application/ json)
+
+        {
+            "success":  true
+        }
+
++ Response 200 (application/ json)
+
+        {
+            "error":  ["1.2.3.4","test.com"]
+        }
+
+# Group Environment
+
+System enviornment settings interface.
+
+# Network interface configuration [/environment/networkInterface]
+
+## Return network interface configuration [GET]
+
++ Response 200 (application/json)
+
+        {
+            "networkInterface":[{
+                "name": "eth0",
+                "ipv4Addr": "1.1.1.1/24",
+                "ipv6Addr": "fe80::5054:ff:febc:ba9b/64",
+                "speed": 1000,
+                "defaultGateway": "1.1.1.254"
+            }]
+        }
+
+## Update network interface configuration [POST /environment/networkInterface/{interface_name}]
+
++ Request (application/json)
+
+        {
+            "ipv4Addr": "1.1.1.1/24",
+            "ipv6Addr": "fe80::5054:ff:febc:ba9b/64",
+            "speed": "1000",
+            "defaultGateway": "1.1.1.254"
+        }
+
++ Response 200 (application/json)
+
+        {
+            "success": true
+        }
+# Host configuration [/environment/host]
+
+## Return hostname and domain information [GET]
+
++ Response 200 (application/json)
+
+        {
+            "hostname":"CENTOS7_MP01",
+            "domainName": "sn.com"
+        }
+
+## Update hostname and domain information [POST]
+
++ Request (application/json)
+
+        {
+            "hostname": "newHostName",
+            "domainName": "sn.com"
+        }
+
++ Response 200 (application/json)
+
+        {
+            "success": true
+        }
+
+# DNS configuration [/environment/dns]
+
+## Return dns settings [GET]
+
++ Response 200 (application/json)
+
+        {
+            "dns":["1.1.1.2", "1.1.1.3"]
+        }
+
+## Add new dns entry [PUT]
+
++ Request (application/json)
+
+        {
+            "dns": "1.1.1.4"
+        }
+
++ Response 200 (application/json)
+
+        {
+            "success": true
+        }
+
+## Remove dns entry [DELETE /environment/dns/{dns_ip}]
+
++ Response 200 (application/json)
+
+        {
+            "success": true
+        }
+
+# Hardware information [/environment/hardware]
+
+## Return hardware information [GET]
+Uptime => sec, memory => kB, Disk => bytes
+
++ Response 200 (application/json)
+
+        {
+            "cpu":{
+                "name": "Intel(R) Core(TM)2 Duo CPU T7300  @ 2.00GHz",
+                "frequency": "2.01 GHz",
+                "physicalProcessorCount": 4,
+                "logicalProcessorCount": 8,
+                "loadAverage": [2.69, 2.47, 2.38],
+                "uptime": 2222103
+            },
+            "memory": {
+                "physical": 1922536,
+                "physicalUsed": 93352,
+                "swap": 2064380,
+                "swapUsed": 1024"
+            },
+            "disk":[
+                {
+                    "name": "disk0",
+                    "size": 57552036
+                },
+                {
+                    "name": "disk1",
+                    "size": 57551976
+                }
+            ]
+        }
+
+
+# Software information [/environment/software]
+
+## Return software information [GET]
+partition => bytes
+
++ Response 200 (application/json)
+
+        {
+            "os": {
+                "distribution": "CentOS",
+                "version": "6.5 (Final)",
+            },
+            "fileSystem":[
+                {
+                    "mountPoint": "/",
+                    "size": 57551976,
+                    "used": 481324
+                },
+                {
+                    "mountPoint": "/data",
+                    "size": 57552036,
+                    "used": 21010012
+                }
+            ]
+        }
+
+# DateTime information [/environment/datetime]
+
+## Return DateTime information [GET]
+
++ Response 200 (application/json)
+
+        {
+            "timestamp": 1475640017,
+            "timeZone": "UTC",
+            "NTPEnabled": true,
+            "NTPServer": ["time.nist.gov"]
+        }
+
+## Update DateTime [POST]
+
++ Request (application/json)
+
+        {
+            "timestamp": 1475640217,
+            "timeZone": "CST",
+            "NTPEnabled": true,
+            "NTPServer": ["time.nist.gov", "stdtime.gov.tw"]
+        }
+
++ Response 200 (application/json)
+
+        {
+            "success": true
+        }
+
+
+# Group Delivery
+
+Delivery service management interface.
+
+#GET /delivery/status
+Return current deliver status
+
++ Response 200 (application/json)
+
+        {
+            "isRunning":  true
+        }
+
+# Delivery configuration [/delivery]
+
+## Get configuration [GET]
+Return delivery configuration.
+Bounce attachment: none / heads / message
+
++ Response 200 (application/json)
+
+        {
+            "workerThreads": 1,
+            "deliverSettings": {
+                "default":{
+                    "isDebug": false,
+                    "maxRetries": 5,
+                    "delayTimes": [1800, 1800, 7200, 14400, 21600],
+                    "smtpTimeout": 180000,
+                    "sendPartial": false,
+                    "connectionTimeout": 60000,
+                    "gatewayServer": ["1.2.3.4","1.2.3.5"],
+                    "authUser": "",
+                    "authPass": "",
+                    "bindAddress": "",
+                    "defProps": {},
+                    "dnsProblemRetry": 0,
+                    "heloName": "",
+                    "usePriority": false,
+                    "startTLS": false,
+                    "isSSLEnable": false
+                },
+                "abc.com":{
+                    "isDebug": false,
+                    "maxRetries": 5,
+                    "delayTimes": [1800, 1800, 7200, 14400, 21600],
+                    "smtpTimeout": 180000,
+                    "sendPartial": false,
+                    "connectionTimeout": 60000,
+                    "gatewayServer": ["2.2.3.4","2.2.3.5"],
+                    "authUser": "abc",
+                    "authPass": "com",
+                    "bindAddress": "",
+                    "defProps": {},
+                    "dnsProblemRetry": 0,
+                    "heloName": "",
+                    "usePriority": false,
+                    "startTLS": true,
+                    "isSSLEnable": true
+                }
+            },
+            "bounceSender": "postmaster",
+            "bouncePrefix": "",
+            "bounceAttachment": "message",
+            "bounceMessage": ""
+        }
+
+## Update configuration [POST]
+Update delivery configuration with specified parameters.
+
++ Request (application/json)
+
+        {
+            "workerThreads": 1,
+            "deliverSettings": {
+                "default":{
+                    "isDebug": false,
+                    "maxRetries": 5,
+                    "delayTimes": [1800, 1800, 7200, 14400, 21600],
+                    "smtpTimeout": 180000,
+                    "sendPartial": false,
+                    "connectionTimeout": 60000,
+                    "gatewayServer": ["1.2.3.4","1.2.3.5"],
+                    "authUser": "",
+                    "authPass": "",
+                    "bindAddress": "",
+                    "defProps": {},
+                    "dnsProblemRetry": 0,
+                    "heloName": "",
+                    "usePriority": false,
+                    "startTLS": false,
+                    "isSSLEnable": false
+                },
+                "abc.com":{
+                    "isDebug": false,
+                    "maxRetries": 5,
+                    "delayTimes": [1800, 1800, 7200, 14400, 21600],
+                    "smtpTimeout": 180000,
+                    "sendPartial": false,
+                    "connectionTimeout": 60000,
+                    "gatewayServer": ["2.2.3.4","2.2.3.5"],
+                    "authUser": "abc",
+                    "authPass": "com",
+                    "bindAddress": "",
+                    "defProps": {},
+                    "dnsProblemRetry": 0,
+                    "heloName": "",
+                    "usePriority": false,
+                    "startTLS": true,
+                    "isSSLEnable": true
+                }
+            },
+            "bounceSender": "postmaster",
+            "bouncePrefix": "",
+            "bounceAttachment": "message",
+            "bounceMessage": ""
+        }
+
++ Response 200 (application/ json)
+
+        { "updateSuccess": true }
+
+# POST /delivery/stop
+
+Stop delivery service
+
++ Response 200 (application/ json)
+
+        { "stopSuccess": true }
+
+# POST /delivery/start
+
+Start delivery service
+
++ Response 200 (application/ json)
+
+        { "startSuccess": true }
+
+# Gateway settings [/delivery/gateways]
+
+## List gateway settings [GET]
+
+Return gateway settings manageable by current user
+
++ Response 200 (application/ json)
+
+        { 
+            "abc.com":{
+                "isDebug": false,
+                "maxRetries": 5,
+                "delayTimes": [1800, 1800, 7200, 14400, 21600],
+                "smtpTimeout": 180000,
+                "sendPartial": false,
+                "connectionTimeout": 60000,
+                "gatewayServer": ["2.2.3.4","2.2.3.5"],
+                "authUser": "abc",
+                "authPass": "com",
+                "bindAddress": "",
+                "defProps": {},
+                "dnsProblemRetry": 0,
+                "heloName": "",
+                "usePriority": false,
+                "startTLS": true,
+                "isSSLEnable": true
+            },
+            "cde.com":{
+                "isDebug": false,
+                "maxRetries": 5,
+                "delayTimes": [1800, 1800, 7200, 14400, 21600],
+                "smtpTimeout": 180000,
+                "sendPartial": false,
+                "connectionTimeout": 60000,
+                "gatewayServer": ["3.2.3.4","3.2.3.5"],
+                "authUser": "",
+                "authPass": "",
+                "bindAddress": "",
+                "defProps": {},
+                "dnsProblemRetry": 0,
+                "heloName": "",
+                "usePriority": false,
+                "startTLS": false,
+                "isSSLEnable": false
+            }
+        }
+
+## Update gateway setting [POST]
+
+Update gateway setting manageable by current user
+
++ Request (application/json)
+
+        {
+            "domain": "abc.com",
+            "values": {
+                "isDebug": false,
+                "maxRetries": 5,
+                "delayTimes": [1800, 1800, 7200, 14400, 21600],
+                "smtpTimeout": 180000,
+                "sendPartial": false,
+                "connectionTimeout": 60000,
+                "gatewayServer": ["3.2.3.4","3.2.3.5"],
+                "authUser": "",
+                "authPass": "",
+                "bindAddress": "",
+                "defProps": {},
+                "dnsProblemRetry": 0,
+                "heloName": "",
+                "usePriority": false,
+                "startTLS": false,
+                "isSSLEnable": false
+            }
+        }
+
++ Response 200 (application/ json)
+
+        { "updateSuccess": true }
+
+
+# Group Update
+
+Update interface.
+
+# GET /update/currentVersion
+
++ Response 200 (application/json)
+
+            {"version":"1.0.0"}
+
+# GET /update/list{?refresh}
+
++ Parameters
+
+    + refresh (optional, boolean, `false`) ... force to refresh version list.
+    
++ Response 200 (application/json)
+
+        [
+            {"version":"1.0.0", 
+            "versionRequirement":"0.9.0",
+            "detailLocation":"http://updateServer:8000/detail1"},
+            {"version":"1.0.1", 
+            "versionRequirement":"0.9.0",
+            "detailLocation":"http://updateServer:8000/detail2"}
+        ]
+
+# GET /update/{version}/{?refresh}
+
+Get version detail information.
+
++ Parameters
+
+    + refresh (optional, boolean, `false`) ... force to refresh version list.
+    
++ Response 200 (application/json)
+
+        {
+            "file":"http://updateServer:8000/bundle.jar",
+            "checksum":"0b7631a95fcbbf1b4aaa0766d1aebb3e5990a9a39e63d232f07c9d55f7003458",
+            "changelog":"update to 1.0.0",
+            "extra":{
+            "extra1":"extra1_content"
+            }
+        }
+        
+# POST /update/{version}/download
+
+Download specified patch.
+
++ Response 200 (application/ json)
+
+        {
+            "download":  "1.0.0"
+        }            
+        
+# GET /update/{version}/status
+
+Return download status.
+
++ Response 200 (application/json)
+
+        {   "version": "1.0.0",
+            "downloaded": 0.51
+        }
+        
+        {   "version": "1.0.0",
+            "complete": true
+        }
+
+# POST /update/{version}/install
+
+Install specified patch.
+
++ Response 200 (application/ json)
+
+        {
+            "install":  "1.0.0"
+        }            
+
+# Group Audit
+
+Audit interface.
+
+# Audit Service [/audit]
+
+## Return all auditee mails corresponding to current user  [GET]
+
++ Response 200 (application/json)
+
+        [
+            {"storeId":"currIndex", 
+            "id":"1",
+            "auditResults": 
+                [
+                    {
+                        "auditor":"ccf773c1-be31-4570-8773-72e10a006bca",
+                        "result":"Pass"
+                    }
+                ],
+            "condition":"Any",
+            "cause":"Audit rule 1",
+            "defaultResult": "Reject",
+            "resultTime":"1415862784000"}
+        ]
+
+## Submit audit report to make audit decisions [POST]
+
++ Request (application/json)
+
+        {
+            "storeId":"currIndex",
+            "id":"1",
+            "result":"Pass"
+        }
+    
++ Response 200 (application/ json)
+
+        {
+            "audit":  "Report submitted successfully"
+        }                    
+
+
+# GET /audit{?storeId}&{id}
+Return specific auditee mail information
+Will return empty result if given incorrect storeId or id.
+
++ Parameters
+
+    + storeId (optional, string) ... store id of the mail.
+    + id (optional, string) ... id of the mail.
+
++ Response 200 (application/json)
+
+        {"storeId":"currIndex", 
+        "id":"1",
+        "auditResults": 
+            [
+                {
+                    "auditor":"ccf773c1-be31-4570-8773-72e10a006bca",
+                    "result":"Pass"
+                }
+            ],
+        "condition":"Any",
+        "cause":"Audit rule 1",
+        "defaultResult": "Reject",
+        "resultTime":"1415862784000"}
+
+# Group Quarantine
+
+Quarantine interface.
+
+# Quarantine service [/quarantine]
+Quarantine interface.
+
+
+## Release quarantined mail [POST]
+
+Release quarantined mail (usually quarantined by anti-spam filters).
+
++ Request (application/json)
+
+        {
+            "storeId":"currIndex",
+            "id":"1"
+        }
+    
++ Response 200 (application/ json)
+
+        {
+            "quarantine":  "Quarantine mail released successfully"
+        }                    
+
+# Group Report
+
+Report interface.
+
+# GET /report{?reportType,timeUnit,range,base}
+
+Get mail flow status report with specified period.
+
++ Parameters
+
+    + reportType (required, string, `MailFlowStatus`) ... Report type, currently support MailFlowStatus / MailFlowTraffic / GroupTraffic
+    + timeUnit (required, string, `Daily`) ... Report time unit, currently support Hourly / Daily / Monthly / Yearly
+    + range (optional, number, `2` ) ... Report time range
+    + base (optional, number,`1353558889274`) ... Report time base timestamp
+
+
++ Response 200 (application/ json)
+
+        {
+            "schema":[
+                {"id":"Date","type":"number"},
+                {"id":"InCount","type":"number"},
+                {"id":"InSize","type":"number"},
+                {"id":"OutCount","type":"number"},
+                {"id":"OutSize","type":"number"},
+                {"id":"InternalCount","type":"number"},
+                {"id":"InternalSize","type":"number"}],
+                "data":[
+                [1353456000000,0,0,0,0,0,0],
+                [1353542400000,2,2,0,0,0,0]
+            ]
+        }
